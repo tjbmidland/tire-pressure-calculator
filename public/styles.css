@@ -113,6 +113,14 @@ header h1 {
     border-bottom: 1px solid #eee;
 }
 
+.manage-panel .btn-link {
+    color: #667eea;
+}
+
+.manage-panel .btn-delete {
+    color: #e74c3c;
+}
+
 .manage-section h3 span {
     font-weight: 400;
     color: #888;
