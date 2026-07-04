@@ -8,10 +8,15 @@
  */
 
 // ─── K coefficient ────────────────────────────────────────────────
-// Calibrated to Rene Herse, biased slightly high for safety
-// K is constant across tire widths (linear P = K×L/W relationship)
+// Calibrated to Rene Herse at 47mm, biased slightly high for safety
+// Adjusts for tire width — wider tires need higher K
 
-const K = 13.2;
+const K_BASE = 13.2;
+const K_WIDTH_REF = 47; // reference tire width in mm
+
+function getK(tireWidthMm) {
+  return K_BASE * (1 + 0.3 * (tireWidthMm - K_WIDTH_REF) / K_WIDTH_REF);
+}
 
 // ─── Correction factors ───────────────────────────────────────────
 
@@ -169,9 +174,9 @@ function calculatePressure(p) {
     frontLugLbs, rearLugLbs, totalLbs
   );
 
-  // K coefficient
-  const kFront = K;
-  const kRear = K;
+  // K coefficient (adjusts for tire width)
+  const kFront = getK(fTireMm);
+  const kRear = getK(rTireMm);
 
   // Corrections
   const rim = rimWidthCorrection(rimWidthMm);
@@ -207,7 +212,8 @@ function calculatePressure(p) {
 
 module.exports = {
   calculatePressure,
-  K,
+  K_BASE,
+  getK,
   rimWidthCorrection,
   casingCorrection,
   tubeCorrection,
