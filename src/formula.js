@@ -7,17 +7,11 @@
  * Calculates front and rear independently based on tire width, casing, and load.
  */
 
-// ─── K coefficients (by tire width range) ─────────────────────────
+// ─── K coefficient ────────────────────────────────────────────────
 // Calibrated to Rene Herse, biased slightly high for safety
+// K is constant across tire widths (linear P = K×L/W relationship)
 
-function getK(tireWidthMm) {
-  if (tireWidthMm < 28) return 20.5;
-  if (tireWidthMm < 35) return 17.5;
-  if (tireWidthMm < 45) return 14.8;
-  if (tireWidthMm < 60) return 13.2;
-  if (tireWidthMm < 80) return 11.8;
-  return 10.3;
-}
+const K = 13.2;
 
 // ─── Correction factors ───────────────────────────────────────────
 
@@ -47,7 +41,7 @@ function surfaceCorrection(surfaceType) {
     smooth_asphalt: 0.925,
     rough_asphalt: 0.975,
     smooth_gravel: 1.0,
-    coarse_gravel: 1.025,
+    coarse_gravel: 0.945,
     rough_gravel: 1.055,
     mixed_paved_gravel: 1.01,
     singletrack: 1.10,
@@ -62,7 +56,7 @@ const BIKE_DIST = {
   road:        [0.44, 0.56],
   gravel:      [0.467, 0.533],
   mountain:    [0.44, 0.56],
-  bikepacking: [0.40, 0.60],
+  bikepacking: [0.46, 0.54],
 };
 
 const FRAME_SHIFT = {
@@ -78,19 +72,17 @@ const POSITION_SHIFT = {
   upright:      -0.008,   // more weight on rear
 };
 
-function weightDist(bikeType, frameSize, ridingPosition, frontLuggageLbs, rearLuggageLbs, bikepackingLoadLbs, totalLbs) {
+function weightDist(bikeType, frameSize, ridingPosition, frontLuggageLbs, rearLuggageLbs, totalLbs) {
   const [baseFront, baseRear] = BIKE_DIST[bikeType] ?? BIKE_DIST.gravel;
   const frameShift = FRAME_SHIFT[frameSize] ?? 0.0;
   const posShift = POSITION_SHIFT[ridingPosition] ?? 0.0;
 
-  // Start with rider+bike distribution
   let frontPct = baseFront + frameShift + posShift;
   let rearPct = 1 - frontPct;
 
-  // Add luggage directly to respective wheels
-  // Bikepacking load splits equally
-  const frontLoadLbs = totalLbs * frontPct + frontLuggageLbs + (bikepackingLoadLbs / 2);
-  const rearLoadLbs = totalLbs * rearPct + rearLuggageLbs + (bikepackingLoadLbs / 2);
+  // Luggage goes directly to respective wheels
+  const frontLoadLbs = totalLbs * frontPct + frontLuggageLbs;
+  const rearLoadLbs = totalLbs * rearPct + rearLuggageLbs;
 
   return [frontLoadLbs, rearLoadLbs];
 }
@@ -168,17 +160,17 @@ function calculatePressure(p) {
   const rearLugLbs = toLbs(rearLuggageWeight);
   const bpkLbs = toLbs(bikepackingLoadWeight);
 
-  const totalLbs = riderLbs + bikeLbs;
+  const totalLbs = riderLbs + bikeLbs + bpkLbs;
 
   // Weight distribution
   const [frontLoadLbs, rearLoadLbs] = weightDist(
     bikeType, frameSize, ridingPosition,
-    frontLugLbs, rearLugLbs, bpkLbs, totalLbs
+    frontLugLbs, rearLugLbs, totalLbs
   );
 
-  // K coefficients
-  const kFront = getK(fTireMm);
-  const kRear = getK(rTireMm);
+  // K coefficient
+  const kFront = K;
+  const kRear = K;
 
   // Corrections
   const rim = rimWidthCorrection(rimWidthMm);
@@ -214,7 +206,7 @@ function calculatePressure(p) {
 
 module.exports = {
   calculatePressure,
-  getK,
+  K,
   rimWidthCorrection,
   casingCorrection,
   tubeCorrection,
