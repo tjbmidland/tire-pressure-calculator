@@ -7,9 +7,9 @@ A tire pressure calculator web app using the Frank Berto 15% deflection method. 
 ## Running
 
 ```bash
-npm install
-npm start           # production on port 3000
-npm run dev         # development with auto-reload
+pnpm install
+pnpm start           # production on port 3000
+pnpm dev             # development with auto-reload
 ```
 
 Open http://localhost:3000
@@ -68,12 +68,24 @@ Where L = per-wheel load (lbs), W = actual mounted tire width (mm).
 
 ## Patterns & Conventions
 
+- **Package manager**: pnpm 11+ with supply chain security (see `.npmrc`)
 - **No modules/bundler** — all frontend JS is global scope in `public/script.js`
 - **API** — RESTful JSON under `/api/riders`, `/api/bikes`, `/api/setups`, `/api/pressures`
 - **Database** — better-sqlite3 (synchronous), WAL mode, foreign keys on, cascading deletes
 - **DOM access** — `document.getElementById` throughout
 - **Weight distribution** — auto-derived from bike type (road 40/60, gravel 42/58, touring 35/65, etc.)
 - **Service worker** — network-first for HTML, cache-first for static assets, API requests bypass cache entirely
+
+## Supply Chain Security
+
+pnpm v10+ blocks postinstall scripts by default. See `.npmrc`:
+
+- `onlyBuiltDependencies=better-sqlite3` — only allow builds for native addon
+- `blockExoticSubdeps=true` — block git/tarball transitive deps
+- `minimumReleaseAge=1440` — 1-day delay on new versions
+- `trustPolicy=no-downgrade` — prevent trust level regression
+
+To approve a new native dependency: `pnpm approve-builds <package-name>`
 
 ## Testing
 
@@ -83,11 +95,11 @@ No test suite. Verify manually:
 2. Calculate with known values, compare against Rene Herse calculator
 3. Save and recall pressures
 4. Test offline: load page, disconnect, reload
-5. Test unit conversion (kg/lbs)
+5. Test unit conversion (kg/lbs, mm/inches)
 
 ## Deployment
 
-See `deploy/` for Proxmox LXC. The setup script follows the community-scripts pattern. Data persists in `/opt/tirepressure/data/` — back up `tirepressure.db` to preserve saved pressures.
+See `deploy/` for Proxmox LXC. Data persists in `/opt/tirepressure/data/` — back up `tirepressure.db` to preserve saved pressures.
 
 ## Important
 

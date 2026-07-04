@@ -2,7 +2,7 @@
 source <(curl -fsSL https://raw.githubusercontent.com/community-scripts/ProxmoxVE/main/misc/build.func)
 # Copyright (c) 2021-2026 community-scripts ORG
 # License: MIT | https://github.com/community-scripts/ProxmoxVE/raw/main/LICENSE
-# Source: https://github.com/liet-kynes/tire-pressure-calculator
+# Source: https://github.com/tjbmidland/tire-pressure-calculator
 
 APP="Tire Pressure Calculator"
 var_tags="${var_tags:-calculator;cycling}"
@@ -29,7 +29,9 @@ function update_script() {
   msg_info "Updating $APP"
   cd /opt/tirepressure
   git pull
-  $STD npm install --production
+  export PNPM_HOME="/root/.local/share/pnpm"
+  export PATH="$PNPM_HOME:$PATH"
+  $STD pnpm install --production
   $STD systemctl restart tirepressure
   msg_ok "Updated $APP"
   exit
@@ -50,12 +52,15 @@ function install() {
     nginx
   $STD curl -fsSL https://deb.nodesource.com/setup_20.x | bash -
   $STD apt install -y nodejs
+  $STD curl -fsSL https://get.pnpm.io/install.sh | sh -
+  export PNPM_HOME="/root/.local/share/pnpm"
+  export PATH="$PNPM_HOME:$PATH"
   msg_ok "Installed Dependencies"
 
   msg_info "Installing Tire Pressure Calculator"
-  $STD git clone https://github.com/liet-kynes/tire-pressure-calculator.git /opt/tirepressure
+  $STD git clone https://github.com/tjbmidland/tire-pressure-calculator.git /opt/tirepressure
   cd /opt/tirepressure
-  $STD npm install --production
+  $STD pnpm install --production
   msg_ok "Installed Tire Pressure Calculator"
 
   msg_info "Configuring Application"
@@ -70,10 +75,12 @@ After=network.target
 [Service]
 Type=simple
 WorkingDirectory=/opt/tirepressure
-ExecStart=/usr/bin/node src/server.js
+ExecStart=/root/.local/share/pnpm/node_modules/.bin/pnpm start
 Restart=on-failure
 Environment=PORT=3000
 Environment=DATA_DIR=/opt/tirepressure/data
+Environment=PNPM_HOME=/root/.local/share/pnpm
+Environment=PATH=/root/.local/share/pnpm:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
 
 [Install]
 WantedBy=multi-user.target
