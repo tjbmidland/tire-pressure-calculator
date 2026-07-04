@@ -1,51 +1,73 @@
+/* ─── Reset & Base ──────────────────────────────────────────────── */
+
 * {
     margin: 0;
     padding: 0;
     box-sizing: border-box;
 }
 
-body {
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    min-height: 100vh;
-    padding: 15px;
+html {
+    font-size: 16px;
     -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+    font-family: 'Inter', 'Helvetica Neue', Arial, sans-serif;
+    background: #000;
+    color: #fff;
+    min-height: 100vh;
+    padding: 24px;
     -webkit-tap-highlight-color: transparent;
 }
 
+/* ─── Typography ────────────────────────────────────────────────── */
+
+h1, h2, h3, h4, h5, h6 {
+    font-family: 'Inter', 'Helvetica Neue', Arial, sans-serif;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    text-transform: uppercase;
+}
+
+/* ─── Container ─────────────────────────────────────────────────── */
+
 .container {
-    max-width: 800px;
+    max-width: 720px;
     margin: 0 auto;
 }
 
+/* ─── Header ────────────────────────────────────────────────────── */
+
 header {
-    text-align: center;
-    color: white;
-    margin-bottom: 20px;
+    margin-bottom: 32px;
+    padding-bottom: 24px;
+    border-bottom: 1px solid #222;
 }
 
 header h1 {
-    font-size: 2rem;
+    font-size: 1.5rem;
+    letter-spacing: 0.15em;
     margin-bottom: 4px;
-    font-weight: 700;
 }
 
 .subtitle {
-    font-size: 0.9rem;
-    opacity: 0.85;
+    font-size: 0.75rem;
+    color: #666;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
 }
 
-/* ─── Profile bar ─────────────────────────────────────────────── */
+/* ─── Profile Bar ───────────────────────────────────────────────── */
 
 .profile-bar {
     display: flex;
     gap: 8px;
     align-items: center;
-    background: rgba(255,255,255,0.15);
-    border-radius: 12px;
-    padding: 10px 14px;
-    margin-bottom: 16px;
-    backdrop-filter: blur(10px);
+    margin-bottom: 24px;
+    padding: 12px 16px;
+    background: #111;
+    border: 1px solid #222;
 }
 
 .profile-selects {
@@ -58,55 +80,65 @@ header h1 {
 .profile-selects select {
     flex: 1;
     min-width: 0;
-    padding: 8px 10px;
-    border: 1px solid rgba(255,255,255,0.3);
-    border-radius: 6px;
-    background: rgba(255,255,255,0.9);
-    font-size: 0.85rem;
-    color: #333;
+    padding: 10px 12px;
+    background: #000;
+    color: #fff;
+    border: 1px solid #333;
+    font-size: 0.8rem;
+    font-family: 'Inter', 'Helvetica Neue', Arial, sans-serif;
+    letter-spacing: 0.03em;
+    cursor: pointer;
+    -webkit-appearance: none;
+    appearance: none;
 }
 
 .profile-selects select:disabled {
-    opacity: 0.5;
+    opacity: 0.3;
+}
+
+.profile-selects select:focus {
+    outline: none;
+    border-color: #c00;
 }
 
 .btn-link {
     background: none;
     border: none;
-    color: white;
+    color: #c00;
     cursor: pointer;
-    font-size: 0.85rem;
-    text-decoration: underline;
-    padding: 4px 8px;
+    font-size: 0.75rem;
+    font-family: 'Inter', 'Helvetica Neue', Arial, sans-serif;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    padding: 4px 0;
     white-space: nowrap;
 }
 
+.btn-link:hover {
+    color: #f44;
+}
+
 .btn-delete {
-    color: #e74c3c;
-    font-size: 1.1rem;
+    color: #666;
+    font-size: 1rem;
     text-decoration: none;
 }
 
-/* ─── Management panel ────────────────────────────────────────── */
+.btn-delete:hover {
+    color: #c00;
+}
+
+/* ─── Management Panel ──────────────────────────────────────────── */
 
 .manage-panel {
-    background: white;
-    border-radius: 12px;
-    padding: 16px;
-    margin-bottom: 16px;
-    box-shadow: 0 4px 20px rgba(0,0,0,0.15);
-}
-
-.manage-panel .btn-link {
-    color: #667eea;
-}
-
-.manage-panel .btn-delete {
-    color: #e74c3c;
+    background: #111;
+    border: 1px solid #222;
+    padding: 20px;
+    margin-bottom: 24px;
 }
 
 .manage-section {
-    margin-bottom: 16px;
+    margin-bottom: 20px;
 }
 
 .manage-section:last-child {
@@ -114,31 +146,33 @@ header h1 {
 }
 
 .manage-section h3 {
-    font-size: 0.95rem;
-    color: #333;
-    margin-bottom: 8px;
-    padding-bottom: 4px;
-    border-bottom: 1px solid #eee;
+    font-size: 0.7rem;
+    letter-spacing: 0.15em;
+    color: #999;
+    margin-bottom: 12px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid #222;
 }
 
 .manage-section h3 span {
     font-weight: 400;
-    color: #888;
-    font-size: 0.85rem;
+    color: #555;
+    text-transform: none;
+    letter-spacing: 0;
 }
 
 .item-list {
-    margin-bottom: 8px;
+    margin-bottom: 12px;
 }
 
 .item-row {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 6px 0;
-    font-size: 0.85rem;
-    color: #555;
-    border-bottom: 1px solid #f5f5f5;
+    padding: 8px 0;
+    font-size: 0.8rem;
+    color: #999;
+    border-bottom: 1px solid #1a1a1a;
 }
 
 .item-row:last-child {
@@ -147,111 +181,128 @@ header h1 {
 
 .add-row {
     display: flex;
-    gap: 6px;
+    gap: 8px;
 }
 
 .add-row input {
     flex: 1;
-    padding: 8px 10px;
-    border: 1px solid #ddd;
-    border-radius: 6px;
-    font-size: 0.85rem;
+    padding: 10px 12px;
+    background: #000;
+    color: #fff;
+    border: 1px solid #333;
+    font-size: 0.8rem;
+    font-family: 'Inter', 'Helvetica Neue', Arial, sans-serif;
+}
+
+.add-row input:focus {
+    outline: none;
+    border-color: #c00;
 }
 
 .add-row button {
-    padding: 8px 14px;
-    background: #667eea;
-    color: white;
+    padding: 10px 16px;
+    background: #c00;
+    color: #fff;
     border: none;
-    border-radius: 6px;
-    font-size: 0.85rem;
+    font-size: 0.7rem;
+    font-family: 'Inter', 'Helvetica Neue', Arial, sans-serif;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
     cursor: pointer;
+}
+
+.add-row button:hover {
+    background: #e00;
 }
 
 .add-form {
     display: flex;
     flex-direction: column;
     gap: 8px;
-    margin-top: 8px;
-    padding: 12px;
-    background: #f9f9f9;
-    border-radius: 8px;
+    margin-top: 12px;
+    padding: 16px;
+    background: #0a0a0a;
+    border: 1px solid #222;
 }
 
 .add-form input, .add-form select {
     width: 100%;
-    padding: 10px;
-    border: 1px solid #ddd;
-    border-radius: 6px;
-    font-size: 0.9rem;
+    padding: 10px 12px;
+    background: #000;
+    color: #fff;
+    border: 1px solid #333;
+    font-size: 0.8rem;
+    font-family: 'Inter', 'Helvetica Neue', Arial, sans-serif;
 }
 
-.add-form-row {
-    display: flex;
-    gap: 6px;
-}
-
-.add-form-row input {
-    flex: 1;
-    min-width: 0;
-}
-
-.add-form-row select {
-    width: auto;
-    flex-shrink: 0;
+.add-form input:focus, .add-form select:focus {
+    outline: none;
+    border-color: #c00;
 }
 
 .add-form button {
-    padding: 10px 14px;
-    background: #667eea;
-    color: white;
+    padding: 12px 16px;
+    background: #c00;
+    color: #fff;
     border: none;
-    border-radius: 6px;
-    font-size: 0.9rem;
+    font-size: 0.7rem;
+    font-family: 'Inter', 'Helvetica Neue', Arial, sans-serif;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
     cursor: pointer;
     margin-top: 4px;
 }
 
-.form-label {
-    font-size: 0.8rem;
-    font-weight: 600;
-    color: #666;
-    margin-top: 4px;
+.add-form button:hover {
+    background: #e00;
 }
 
-/* ─── Calculator ──────────────────────────────────────────────── */
+.form-label {
+    font-size: 0.65rem;
+    font-weight: 600;
+    color: #666;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    margin-top: 8px;
+}
+
+/* ─── Calculator ────────────────────────────────────────────────── */
 
 .calculator {
-    background: white;
-    border-radius: 16px;
+    background: #111;
+    border: 1px solid #222;
     padding: 24px;
-    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
 }
 
 .input-group {
-    margin-bottom: 18px;
+    margin-bottom: 20px;
 }
 
 .input-group label {
     display: block;
+    font-size: 0.65rem;
     font-weight: 600;
-    margin-bottom: 6px;
-    color: #333;
-    font-size: 0.9rem;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    margin-bottom: 8px;
+    color: #999;
 }
 
 .input-group select {
     width: 100%;
-    padding: 12px 14px;
-    border: 2px solid #e0e0e0;
-    border-radius: 8px;
-    font-size: 16px;
-    transition: border-color 0.3s;
+    padding: 12px;
+    background: #000;
+    color: #fff;
+    border: 1px solid #333;
+    font-size: 0.85rem;
+    font-family: 'Inter', 'Helvetica Neue', Arial, sans-serif;
+    -webkit-appearance: none;
+    appearance: none;
 }
 
 .input-group select:focus {
     outline: none;
-    border-color: #667eea;
+    border-color: #c00;
 }
 
 .calc-input-row {
@@ -262,41 +313,50 @@ header h1 {
 .calc-input-row input {
     flex: 1;
     min-width: 0;
-    padding: 12px 14px;
-    border: 2px solid #e0e0e0;
-    border-radius: 8px;
-    font-size: 16px;
-    transition: border-color 0.3s;
+    padding: 12px;
+    background: #000;
+    color: #fff;
+    border: 1px solid #333;
+    font-size: 0.85rem;
+    font-family: 'Inter', 'Helvetica Neue', Arial, sans-serif;
 }
 
 .calc-input-row input:focus {
     outline: none;
-    border-color: #667eea;
+    border-color: #c00;
+}
+
+.calc-input-row input::placeholder {
+    color: #444;
 }
 
 .calc-input-row select {
     width: auto;
     flex-shrink: 0;
-    max-width: 110px;
+    max-width: 100px;
     padding: 12px 10px;
-    border: 2px solid #e0e0e0;
-    border-radius: 8px;
-    font-size: 15px;
-    transition: border-color 0.3s;
+    background: #000;
+    color: #fff;
+    border: 1px solid #333;
+    font-size: 0.8rem;
+    font-family: 'Inter', 'Helvetica Neue', Arial, sans-serif;
+    -webkit-appearance: none;
+    appearance: none;
 }
 
 .calc-input-row select:focus {
     outline: none;
-    border-color: #667eea;
+    border-color: #c00;
 }
 
 .unit-label {
-    padding: 12px 14px;
-    background: #f5f5f5;
-    border: 2px solid #e0e0e0;
-    border-radius: 8px;
-    font-size: 16px;
+    padding: 12px;
+    background: #0a0a0a;
+    border: 1px solid #333;
+    font-size: 0.75rem;
     color: #666;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
     white-space: nowrap;
     flex-shrink: 0;
 }
@@ -304,79 +364,79 @@ header h1 {
 .input-row-pair {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 12px;
+    gap: 16px;
 }
 
 .toggle-label {
     display: flex;
     align-items: center;
-    gap: 8px;
-    padding: 10px 0;
-    font-weight: 600;
-    color: #333;
-    font-size: 0.9rem;
+    gap: 10px;
+    padding: 12px 0;
+    font-size: 0.85rem;
+    color: #fff;
     cursor: pointer;
 }
 
 .toggle-label input[type="checkbox"] {
-    width: 20px;
-    height: 20px;
-    accent-color: #667eea;
+    width: 18px;
+    height: 18px;
+    accent-color: #c00;
     cursor: pointer;
 }
+
+/* ─── Calculate Button ──────────────────────────────────────────── */
 
 .calculate-btn {
     width: 100%;
     padding: 16px;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    color: white;
+    background: #c00;
+    color: #fff;
     border: none;
-    border-radius: 8px;
-    font-size: 1.1rem;
-    font-weight: 600;
+    font-size: 0.75rem;
+    font-family: 'Inter', 'Helvetica Neue', Arial, sans-serif;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.15em;
     cursor: pointer;
-    transition: transform 0.2s, box-shadow 0.2s;
-    touch-action: manipulation;
     margin-top: 8px;
+    transition: background 0.15s;
 }
 
-@media (hover: hover) {
-    .calculate-btn:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
-    }
+.calculate-btn:hover {
+    background: #e00;
 }
 
 .calculate-btn:active {
-    transform: scale(0.98);
+    background: #900;
 }
 
-/* ─── Results ─────────────────────────────────────────────────── */
+/* ─── Results ───────────────────────────────────────────────────── */
 
 .results {
     margin-top: 24px;
     padding-top: 24px;
-    border-top: 2px solid #e0e0e0;
+    border-top: 1px solid #222;
 }
 
 .results h2 {
-    font-size: 1.5rem;
-    color: #333;
-    margin-bottom: 18px;
-    text-align: center;
+    font-size: 0.7rem;
+    letter-spacing: 0.15em;
+    color: #999;
+    margin-bottom: 20px;
 }
 
 .pressure-card {
-    background: #f8f9fa;
-    border-radius: 12px;
+    background: #0a0a0a;
+    border: 1px solid #222;
     padding: 16px;
     margin-bottom: 12px;
 }
 
 .pressure-card h3 {
-    font-size: 1.1rem;
-    color: #333;
-    margin-bottom: 10px;
+    font-size: 0.65rem;
+    letter-spacing: 0.15em;
+    color: #666;
+    margin-bottom: 12px;
 }
 
 .pressure-values {
@@ -386,62 +446,64 @@ header h1 {
 
 .pressure-option {
     flex: 1;
-    background: white;
-    border-radius: 8px;
-    padding: 14px;
+    background: #000;
+    border: 1px solid #333;
+    padding: 16px;
     text-align: center;
-    border: 2px solid #e0e0e0;
 }
 
 .pressure-option .value {
     display: block;
-    font-size: 2rem;
+    font-size: 2.5rem;
     font-weight: 700;
-    color: #667eea;
+    color: #fff;
+    line-height: 1;
+    letter-spacing: -0.03em;
 }
 
 .pressure-option .value-bar {
     display: block;
-    font-size: 1.4rem;
+    font-size: 1.2rem;
     font-weight: 600;
-    color: #764ba2;
-    margin-top: 4px;
+    color: #666;
+    margin-top: 8px;
 }
 
 .pressure-option .unit {
-    font-size: 0.8rem;
-    color: #888;
+    font-size: 0.65rem;
+    color: #555;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
 }
 
 .save-btn {
     display: block;
     margin: 16px auto 0;
-    color: #667eea !important;
-    font-size: 0.9rem;
+    font-size: 0.7rem;
 }
 
-/* ─── History ─────────────────────────────────────────────────── */
+/* ─── History ───────────────────────────────────────────────────── */
 
 .history {
-    background: rgba(255,255,255,0.15);
-    border-radius: 12px;
-    padding: 16px;
-    margin-top: 16px;
-    backdrop-filter: blur(10px);
+    background: #111;
+    border: 1px solid #222;
+    padding: 20px;
+    margin-top: 24px;
 }
 
 .history h2 {
-    color: white;
-    font-size: 1.1rem;
-    margin-bottom: 10px;
+    font-size: 0.7rem;
+    letter-spacing: 0.15em;
+    color: #999;
+    margin-bottom: 16px;
 }
 
 .history-item {
     display: flex;
     align-items: center;
     gap: 12px;
-    padding: 8px 0;
-    border-bottom: 1px solid rgba(255,255,255,0.2);
+    padding: 10px 0;
+    border-bottom: 1px solid #1a1a1a;
 }
 
 .history-item:last-child {
@@ -449,20 +511,29 @@ header h1 {
 }
 
 .history-pressure {
-    color: white;
+    color: #fff;
     font-weight: 600;
-    font-size: 0.95rem;
+    font-size: 0.9rem;
+    font-variant-numeric: tabular-nums;
 }
 
 .history-date {
-    color: rgba(255,255,255,0.7);
-    font-size: 0.8rem;
+    color: #555;
+    font-size: 0.75rem;
     flex: 1;
 }
 
-/* ─── Mobile ──────────────────────────────────────────────────── */
+/* ─── Mobile ────────────────────────────────────────────────────── */
 
 @media (max-width: 600px) {
+    body {
+        padding: 16px;
+    }
+
+    header h1 {
+        font-size: 1.2rem;
+    }
+
     .profile-selects {
         flex-direction: column;
     }
@@ -473,15 +544,9 @@ header h1 {
 
     .calc-input-row select {
         max-width: 90px;
-        font-size: 14px;
-        padding: 12px 8px;
     }
 
-    .add-form-row {
-        flex-direction: column;
-    }
-
-    .add-form-row select {
-        width: 100%;
+    .pressure-option .value {
+        font-size: 2rem;
     }
 }
