@@ -31,6 +31,9 @@
     --green-500: #8a9a2e;
     --green-600: #6b7a22;
     --green-glow: rgba(138, 154, 46, 0.4);
+
+    /* Marathon-inspired acid green (for accents only) */
+    --acid-green: #c2fe0b;
 }
 
 /* ─── Reset ─────────────────────────────────────────────────────── */
@@ -55,6 +58,21 @@ body {
     color: var(--gray-200);
     min-height: 100vh;
     -webkit-tap-highlight-color: transparent;
+    position: relative;
+}
+
+/* Dithering overlay — Marathon-style digital artifact */
+body::before {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: url('/assets/patterns/dither.svg') repeat;
+    pointer-events: none;
+    z-index: 1000;
+    opacity: 0.4;
 }
 
 /* ─── Typography ────────────────────────────────────────────────── */
@@ -66,6 +84,7 @@ h1 {
     letter-spacing: -0.02em;
     color: var(--white);
     text-transform: uppercase;
+    position: relative;
 }
 
 h2 {
@@ -101,6 +120,21 @@ label {
     max-width: 760px;
     margin: 0 auto;
     padding: 40px 24px;
+    position: relative;
+}
+
+/* Lattice overlay — Marathon-style grid */
+.container::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: url('/assets/patterns/lattice.svg') repeat;
+    pointer-events: none;
+    z-index: -1;
+    opacity: 0.3;
 }
 
 /* ─── Header ────────────────────────────────────────────────────── */
@@ -166,6 +200,7 @@ header::after {
     cursor: pointer;
     transition: all 0.15s;
     position: relative;
+    overflow: hidden;
 }
 
 .onboarding-btn::before {
@@ -177,6 +212,18 @@ header::after {
     height: 100%;
     background: var(--green-400);
     box-shadow: 0 0 8px var(--green-glow);
+}
+
+/* Registration marks — Marathon-style print artifacts */
+.onboarding-btn::after {
+    content: '+';
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    font-family: 'Space Mono', monospace;
+    font-size: 0.5rem;
+    color: var(--dark-500);
+    line-height: 1;
 }
 
 .onboarding-btn:hover {
@@ -224,6 +271,19 @@ header::after {
     padding: 12px 16px;
     background: var(--dark-800);
     border: 1px solid var(--dark-500);
+    position: relative;
+}
+
+/* Fiducial marker — Marathon-style */
+.profile-bar::after {
+    content: '';
+    position: absolute;
+    bottom: -6px;
+    right: 12px;
+    width: 8px;
+    height: 8px;
+    border: 1px solid var(--dark-500);
+    transform: rotate(45deg);
 }
 
 .profile-selects {
@@ -295,6 +355,28 @@ header::after {
     border: 1px solid var(--dark-500);
     padding: 24px;
     margin-bottom: 24px;
+    position: relative;
+}
+
+/* Registration marks — corners */
+.manage-panel::before,
+.manage-panel::after {
+    content: '+';
+    position: absolute;
+    font-family: 'Space Mono', monospace;
+    font-size: 0.5rem;
+    color: var(--dark-500);
+    line-height: 1;
+}
+
+.manage-panel::before {
+    top: 6px;
+    left: 6px;
+}
+
+.manage-panel::after {
+    bottom: 6px;
+    right: 6px;
 }
 
 .manage-section {
@@ -465,6 +547,18 @@ header::after {
     height: 2px;
     background: linear-gradient(90deg, var(--green-400) 0%, var(--green-400) 60%, var(--red-500) 60%, var(--red-500) 100%);
     box-shadow: 0 0 10px var(--green-glow);
+}
+
+/* Registration marks — calculator corners */
+.calculator::after {
+    content: '+ +';
+    position: absolute;
+    top: 6px;
+    right: 8px;
+    font-family: 'Space Mono', monospace;
+    font-size: 0.4rem;
+    color: var(--dark-500);
+    letter-spacing: 0.3em;
 }
 
 .input-group {
@@ -652,6 +746,18 @@ header::after {
     border: 1px solid var(--dark-500);
     padding: 20px;
     margin-bottom: 16px;
+    position: relative;
+}
+
+/* Registration mark */
+.pressure-card::after {
+    content: '+';
+    position: absolute;
+    bottom: 6px;
+    right: 8px;
+    font-family: 'Space Mono', monospace;
+    font-size: 0.4rem;
+    color: var(--dark-500);
 }
 
 .pressure-card h3 {
@@ -692,7 +798,7 @@ header::after {
     color: var(--white);
     line-height: 1;
     letter-spacing: -0.03em;
-    text-shadow: 0 0 20px rgba(255,255,255,0.1);
+    text-shadow: 0 0 20px rgba(255,255,255,0.15);
 }
 
 .pressure-option .value-bar {
@@ -728,6 +834,27 @@ header::after {
     border: 1px solid var(--dark-500);
     border-left: 3px solid var(--green-400);
     box-shadow: -4px 0 16px var(--green-glow);
+    position: relative;
+}
+
+/* Registration marks */
+.history::before,
+.history::after {
+    content: '+';
+    position: absolute;
+    font-family: 'Space Mono', monospace;
+    font-size: 0.4rem;
+    color: var(--dark-500);
+}
+
+.history::before {
+    top: 6px;
+    left: 8px;
+}
+
+.history::after {
+    bottom: 6px;
+    right: 8px;
 }
 
 .history h2 {
@@ -767,6 +894,22 @@ header::after {
 
 .history .btn-delete:hover {
     color: var(--red-400);
+}
+
+/* ─── Glitch Effect (subtle) ────────────────────────────────────── */
+
+@keyframes glitch {
+    0% { transform: translate(0); }
+    20% { transform: translate(-1px, 1px); }
+    40% { transform: translate(1px, -1px); }
+    60% { transform: translate(-1px, 0); }
+    80% { transform: translate(1px, 1px); }
+    100% { transform: translate(0); }
+}
+
+h1:hover {
+    animation: glitch 0.3s ease-in-out;
+    text-shadow: 2px 0 var(--green-400), -2px 0 var(--red-500);
 }
 
 /* ─── Mobile ────────────────────────────────────────────────────── */
