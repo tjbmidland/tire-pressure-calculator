@@ -1,62 +1,74 @@
 /**
- * Tire pressure calculation using the Frank Berto 15% deflection method.
- * Formula: P = 600·L / W² + 0.75·W − 25
- * Where L = per-wheel load in lbs, W = actual mounted tire width in mm
+ * Tire pressure calculation calibrated to Rene Herse calculator 3.0.
+ * Formula: PSI = K(W) × L / W × corrections
+ * Where L = per-wheel load in lbs, W = tire width in mm
  *
- * Sources:
- * - BikeLab Studio white paper: https://www.bikelabstudio.com/articles/white-paper-psi-model.html
- * - Rene Herse tire pressure calculator methodology
+ * K coefficients calibrated against Rene Herse PRO tool output.
+ * K already includes baseline corrections (endurance+ casing, tubeless, smooth gravel).
+ * Additional corrections apply only for deviations from that baseline.
+ * Weight distribution based on frame size (Rene Herse methodology).
  */
 
-// ─── Core Berto formula ───────────────────────────────────────────
+// ─── K coefficients (by tire width range) ─────────────────────────
+// Calibrated to Rene Herse, biased slightly high for safety
 
-function bertoPressure(loadLbs, tireWidthMm) {
-  return (600 * loadLbs) / (tireWidthMm ** 2) + 0.75 * tireWidthMm - 25;
+function getK(tireWidthMm) {
+  if (tireWidthMm < 28) return 20.5;
+  if (tireWidthMm < 35) return 17.5;
+  if (tireWidthMm < 45) return 14.8;
+  if (tireWidthMm < 60) return 13.2;
+  if (tireWidthMm < 80) return 11.8;
+  return 10.3;
 }
 
 // ─── Correction factors ───────────────────────────────────────────
+// Baseline: endurance+ casing, tubeless, smooth gravel, 23mm rim
+// Corrections adjust for deviations from this baseline
 
 function rimWidthCorrection(rimWidthMm) {
-  const ref = 18;
+  const ref = 23;
   if (rimWidthMm <= ref) return 1.0;
   return 1 - 0.002 * (rimWidthMm - ref);
 }
 
 function casingCorrection(casingType) {
+  // Baseline is endurance_plus — stiffer casings need more pressure
   const factors = {
     extralight: 0.95,
-    standard: 1.0,
-    endurance: 1.05,
-    endurance_plus: 1.05,
+    standard: 1.05,
+    endurance: 1.0,
+    endurance_plus: 1.0,
   };
   return factors[casingType] ?? 1.0;
 }
 
 function tubeCorrection(isTubeless) {
+  // Baseline is tubeless — tubes need more pressure
   return isTubeless ? 1.0 : 1.05;
 }
 
 function surfaceCorrection(surfaceType) {
+  // Baseline is smooth gravel — adjust for other surfaces
   const factors = {
-    smooth_pavement: 1.0,
-    rough_pavement: 0.95,
-    gravel: 0.925,
-    mixed_trail: 0.9,
+    smooth_pavement: 1.075,
+    rough_pavement: 1.025,
+    gravel: 1.0,
+    mixed_trail: 0.925,
     singletrack: 0.875,
   };
   return factors[surfaceType] ?? 1.0;
 }
 
-// ─── Weight distribution ──────────────────────────────────────────
+// ─── Weight distribution by frame size ────────────────────────────
+// Calibrated to Rene Herse PRO tool
 
-function defaultWeightDist(bikeType) {
+function weightDist(frameSize) {
   const distributions = {
-    road: [0.40, 0.60],
-    gravel: [0.42, 0.58],
-    bikepacking: [0.35, 0.65],
-    mountain: [0.42, 0.58],
+    small: [0.48, 0.52],
+    medium: [0.467, 0.533],
+    tall: [0.451, 0.549],
   };
-  return distributions[bikeType] ?? [0.42, 0.58];
+  return distributions[frameSize] ?? distributions.medium;
 }
 
 // ─── Unit conversions ─────────────────────────────────────────────
@@ -74,20 +86,6 @@ function barToPsi(bar) { return bar * 14.5038; }
 
 /**
  * Calculate tire pressure for front and rear wheels.
- *
- * @param {Object} params
- * @param {number} params.riderWeight - Rider weight
- * @param {number} params.bikeWeight - Bike weight
- * @param {number} params.additionalWeight - Gear/bags weight
- * @param {number} params.tireWidth - Tire width
- * @param {string} [params.tireWidthUnit='mm'] - 'mm' or 'in'
- * @param {string} [params.weightUnit='lbs'] - 'kg' or 'lbs'
- * @param {number} [params.rimWidthMm=18] - Rim internal width in mm
- * @param {string} [params.casingType='standard'] - extralight|standard|endurance|endurance_plus
- * @param {boolean} [params.isTubeless=true] - Whether running tubeless
- * @param {string} [params.surfaceType='smooth_pavement'] - Surface type
- * @param {string} [params.bikeType='gravel'] - Bike type for weight distribution
- * @returns {{ frontPsi: number, rearPsi: number, frontBar: number, rearBar: number }}
  */
 function calculatePressure(params) {
   const {
@@ -97,17 +95,15 @@ function calculatePressure(params) {
     tireWidth: rawTireWidth,
     tireWidthUnit = 'mm',
     weightUnit = 'lbs',
-    rimWidthMm = 18,
-    casingType = 'standard',
+    rimWidthMm = 23,
+    casingType = 'endurance_plus',
     isTubeless = true,
-    surfaceType = 'smooth_pavement',
-    bikeType = 'gravel',
+    surfaceType = 'gravel',
+    frameSize = 'medium',
   } = params;
 
-  // Convert tire width to mm
   const tireWidthMm = tireWidthUnit === 'in' ? inToMm(rawTireWidth) : rawTireWidth;
 
-  // Convert weights to lbs (formula uses lbs)
   let totalLbs;
   if (weightUnit === 'kg') {
     totalLbs = kgToLbs(riderWeight + bikeWeight + additionalWeight);
@@ -115,48 +111,45 @@ function calculatePressure(params) {
     totalLbs = riderWeight + bikeWeight + additionalWeight;
   }
 
-  // Weight distribution
-  const [frontPct, rearPct] = defaultWeightDist(bikeType);
-
-  // Per-wheel load in lbs
+  const [frontPct, rearPct] = weightDist(frameSize);
+  const frontLoadLbs = totalLbs * frontPct;
   const rearLoadLbs = totalLbs * rearPct;
 
-  // Correction multipliers
+  const k = getK(tireWidthMm);
+
   const allCorrections =
     rimWidthCorrection(rimWidthMm) *
     casingCorrection(casingType) *
     tubeCorrection(isTubeless) *
     surfaceCorrection(surfaceType);
 
-  // Apply Berto formula to rear wheel
-  const rearPsi = bertoPressure(rearLoadLbs, tireWidthMm) * allCorrections;
+  const frontPsi = k * frontLoadLbs / tireWidthMm * allCorrections;
+  const rearPsi = k * rearLoadLbs / tireWidthMm * allCorrections;
 
-  // Front coupling: P_front = 0.93 × P_rear
-  const frontPsi = rearPsi * 0.93;
-
-  // Safety clamp
   const clampedFront = Math.max(15, Math.min(120, frontPsi));
   const clampedRear = Math.max(15, Math.min(120, rearPsi));
 
-  // Hookless rim cap
   const hooklessCap = rimWidthMm >= 30 ? 60 : 120;
 
+  const finalFront = Math.round(Math.min(hooklessCap, clampedFront));
+  const finalRear = Math.round(Math.min(hooklessCap, clampedRear));
+
   return {
-    frontPsi: Math.round(Math.min(hooklessCap, clampedFront)),
-    rearPsi: Math.round(Math.min(hooklessCap, clampedRear)),
-    frontBar: parseFloat(psiToBar(Math.min(hooklessCap, clampedFront)).toFixed(1)),
-    rearBar: parseFloat(psiToBar(Math.min(hooklessCap, clampedRear)).toFixed(1)),
+    frontPsi: finalFront,
+    rearPsi: finalRear,
+    frontBar: parseFloat(psiToBar(finalFront).toFixed(1)),
+    rearBar: parseFloat(psiToBar(finalRear).toFixed(1)),
   };
 }
 
 module.exports = {
   calculatePressure,
-  bertoPressure,
+  getK,
   rimWidthCorrection,
   casingCorrection,
   tubeCorrection,
   surfaceCorrection,
-  defaultWeightDist,
+  weightDist,
   kgToLbs,
   lbsToKg,
   inToMm,
