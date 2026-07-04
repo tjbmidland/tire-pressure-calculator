@@ -1,0 +1,17 @@
+{
+  "name": "tire-pressure-calculator",
+  "version": "2.0.0",
+  "description": "Calculate optimal tire pressure based on weight, tire width, and riding conditions",
+  "main": "src/server.js",
+  "scripts": {
+    "start": "node src/server.js",
+    "dev": "node --watch src/server.js"
+  },
+  "dependencies": {
+    "better-sqlite3": "^11.0.0",
+    "express": "^4.21.0"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}

@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Calculate optimal tire pressure based on rider weight, bike weight, tire width, and riding conditions">
+    <meta name="theme-color" content="#667eea">
+    <title>Tire Pressure Calculator</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="manifest" href="manifest.json">
+    <link rel="apple-touch-icon" href="icon-192.png">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Tire Pressure Calculator</h1>
+            <p class="subtitle">Frank Berto 15% deflection method</p>
+        </header>
+
+        <!-- Profile selector -->
+        <div class="profile-bar">
+            <div class="profile-selects">
+                <select id="riderSelect"><option value="">Rider...</option></select>
+                <select id="bikeSelect" disabled><option value="">Bike...</option></select>
+                <select id="setupSelect" disabled><option value="">Setup...</option></select>
+            </div>
+            <button id="manageBtn" class="btn-link" onclick="toggleManage()">Manage</button>
+        </div>
+
+        <!-- Management panel (hidden by default) -->
+        <div id="managePanel" class="manage-panel" style="display: none;">
+            <div class="manage-section">
+                <h3>Riders</h3>
+                <div id="riderList" class="item-list"></div>
+                <div class="add-row">
+                    <input type="text" id="newRiderName" placeholder="Name">
+                    <button onclick="addRider()">Add</button>
+                </div>
+            </div>
+            <div class="manage-section">
+                <h3>Bikes <span id="bikeRiderLabel"></span></h3>
+                <div id="bikeList" class="item-list"></div>
+                <div class="add-form" id="addBikeForm" style="display: none;">
+                    <input type="text" id="newBikeName" placeholder="Bike name">
+                    <input type="number" id="newBikeTireWidth" placeholder="Tire width (mm)" step="0.5">
+                    <input type="number" id="newBikeRimWidth" placeholder="Rim width (mm)" step="0.5" value="18">
+                    <select id="newBikeCasing">
+                        <option value="standard">Standard</option>
+                        <option value="extralight">Extralight</option>
+                        <option value="endurance">Endurance</option>
+                        <option value="endurance_plus">Endurance Plus</option>
+                    </select>
+                    <label><input type="checkbox" id="newBikeTubeless" checked> Tubeless</label>
+                    <button onclick="addBike()">Add Bike</button>
+                </div>
+                <button class="btn-link" onclick="toggleAddBike()">+ New Bike</button>
+            </div>
+            <div class="manage-section">
+                <h3>Setups <span id="setupBikeLabel"></span></h3>
+                <div id="setupList" class="item-list"></div>
+                <div class="add-form" id="addSetupForm" style="display: none;">
+                    <input type="text" id="newSetupName" placeholder="Setup name (e.g. Normal, Bikepacking)">
+                    <input type="number" id="newSetupRiderWeight" placeholder="Rider weight (lbs)" step="0.5">
+                    <input type="number" id="newSetupBikeWeight" placeholder="Bike weight (lbs)" step="0.1">
+                    <input type="number" id="newSetupGearWeight" placeholder="Gear/bags weight (lbs)" step="0.1" value="0">
+                    <select id="newSetupBikeType">
+                        <option value="gravel">Gravel</option>
+                        <option value="road">Road</option>
+                        <option value="touring">Touring</option>
+                        <option value="city">City</option>
+                        <option value="mountain">Mountain</option>
+                    </select>
+                    <select id="newSetupSurface">
+                        <option value="smooth_asphalt">Smooth asphalt</option>
+                        <option value="rough_asphalt">Rough asphalt</option>
+                        <option value="smooth_gravel">Smooth gravel</option>
+                        <option value="coarse_gravel">Coarse gravel</option>
+                        <option value="rough_gravel">Rough gravel</option>
+                    </select>
+                    <button onclick="addSetup()">Add Setup</button>
+                </div>
+                <button class="btn-link" onclick="toggleAddSetup()">+ New Setup</button>
+            </div>
+        </div>
+
+        <!-- Calculator -->
+        <div class="calculator">
+            <div class="input-group">
+                <label for="tireWidth">Tire Width</label>
+                <div class="input-row">
+                    <input type="number" id="tireWidth" min="1" step="0.5" placeholder="Actual mounted width">
+                    <select id="tireUnit">
+                        <option value="mm">mm</option>
+                        <option value="in">inches</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="input-group">
+                <label for="rimWidth">Rim Internal Width</label>
+                <div class="input-row">
+                    <input type="number" id="rimWidth" min="13" step="0.5" value="18" placeholder="18">
+                    <span class="unit-label">mm</span>
+                </div>
+            </div>
+
+            <div class="input-row-pair">
+                <div class="input-group">
+                    <label for="riderWeight">Rider Weight</label>
+                    <div class="input-row">
+                        <input type="number" id="riderWeight" min="1" step="0.5" placeholder="Weight">
+                        <select id="weightUnit">
+                            <option value="lbs">lbs</option>
+                            <option value="kg">kg</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="input-group">
+                    <label for="bikeWeight">Bike Weight</label>
+                    <div class="input-row">
+                        <input type="number" id="bikeWeight" min="1" step="0.1" placeholder="Weight">
+                        <span class="unit-label" id="bikeWeightUnit">lbs</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="input-group">
+                <label for="gearWeight">Gear / Bags Weight</label>
+                <div class="input-row">
+                    <input type="number" id="gearWeight" min="0" step="0.1" value="0" placeholder="0">
+                    <span class="unit-label" id="gearWeightUnit">lbs</span>
+                </div>
+            </div>
+
+            <div class="input-row-pair">
+                <div class="input-group">
+                    <label for="bikeType">Bike Type</label>
+                    <select id="bikeType">
+                        <option value="gravel">Gravel</option>
+                        <option value="road">Road</option>
+                        <option value="touring">Touring</option>
+                        <option value="city">City</option>
+                        <option value="mountain">Mountain</option>
+                    </select>
+                </div>
+                <div class="input-group">
+                    <label for="surfaceType">Surface</label>
+                    <select id="surfaceType">
+                        <option value="smooth_asphalt">Smooth asphalt</option>
+                        <option value="rough_asphalt">Rough asphalt</option>
+                        <option value="smooth_gravel">Smooth gravel</option>
+                        <option value="coarse_gravel">Coarse gravel</option>
+                        <option value="rough_gravel">Rough gravel</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="input-row-pair">
+                <div class="input-group">
+                    <label for="casingType">Casing</label>
+                    <select id="casingType">
+                        <option value="standard">Standard</option>
+                        <option value="extralight">Extralight</option>
+                        <option value="endurance">Endurance</option>
+                        <option value="endurance_plus">Endurance Plus</option>
+                    </select>
+                </div>
+                <div class="input-group">
+                    <label class="checkbox-label">
+                        <input type="checkbox" id="isTubeless" checked> Tubeless
+                    </label>
+                </div>
+            </div>
+
+            <button id="calculateBtn" class="calculate-btn">Calculate Pressure</button>
+
+            <div id="results" class="results" style="display: none;">
+                <h2>Recommended Pressure</h2>
+                <div class="pressure-card">
+                    <h3>Front</h3>
+                    <div class="pressure-values">
+                        <div class="pressure-option">
+                            <span class="value" id="frontPsi">--</span>
+                            <span class="unit">psi</span>
+                            <span class="value-bar" id="frontBar">--</span>
+                            <span class="unit">bar</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="pressure-card">
+                    <h3>Rear</h3>
+                    <div class="pressure-values">
+                        <div class="pressure-option">
+                            <span class="value" id="rearPsi">--</span>
+                            <span class="unit">psi</span>
+                            <span class="value-bar" id="rearBar">--</span>
+                            <span class="unit">bar</span>
+                        </div>
+                    </div>
+                </div>
+                <button id="saveBtn" class="btn-link save-btn" style="display: none;" onclick="savePressure()">Save this result</button>
+            </div>
+        </div>
+
+        <!-- Saved pressures history -->
+        <div id="history" class="history" style="display: none;">
+            <h2>Saved Pressures</h2>
+            <div id="historyList"></div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+    <script>
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('/sw.js');
+        }
+    </script>
+</body>
+</html>
