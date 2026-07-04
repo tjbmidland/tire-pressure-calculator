@@ -33,7 +33,8 @@ function casingCorrection(casingType) {
 }
 
 function tubeCorrection(isTubeless) {
-  return isTubeless ? 1.0 : 1.05;
+  // Rene Herse shows no difference between tubes and tubeless
+  return 1.0;
 }
 
 function surfaceCorrection(surfaceType) {
@@ -53,7 +54,7 @@ function surfaceCorrection(surfaceType) {
 // Combines bike type, frame size, and riding position
 
 const BIKE_DIST = {
-  road:        [0.44, 0.56],
+  road:        [0.47, 0.53],
   gravel:      [0.467, 0.533],
   mountain:    [0.44, 0.56],
   bikepacking: [0.46, 0.54],
