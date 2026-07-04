@@ -299,6 +299,7 @@ async function addBike() {
   await loadBikes(currentRiderId);
   document.getElementById('bikeSelect').value = result.id;
   currentBikeId = result.id;
+  document.getElementById('bikeSelect').dispatchEvent(new Event('change'));
   await loadSetups(currentBikeId);
 }
 
@@ -342,6 +343,7 @@ async function addSetup() {
   await loadSetups(currentBikeId);
   document.getElementById('setupSelect').value = result.id;
   currentSetupId = result.id;
+  document.getElementById('setupSelect').dispatchEvent(new Event('change'));
   loadHistory(currentSetupId);
 }
 
