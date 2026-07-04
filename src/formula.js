@@ -93,6 +93,26 @@ function weightDist(bikeType, frameSize, ridingPosition, frontLuggageLbs, rearLu
   return [frontLoadLbs, rearLoadLbs];
 }
 
+// ─── Safety minimums by tire width ────────────────────────────────
+// Research-based minimums to prevent rim damage and pinch flats
+
+const MIN_PRESSURES = [
+  { max: 25, min: 80 },   // narrow road
+  { max: 32, min: 60 },   // road
+  { max: 40, min: 40 },   // gravel narrow
+  { max: 47, min: 28 },   // gravel standard
+  { max: 55, min: 22 },   // mountain/gravel wide
+  { max: 65, min: 18 },   // plus tires
+  { max: 80, min: 15 },   // fat bike
+];
+
+function getMinPressure(tireWidthMm) {
+  for (const rule of MIN_PRESSURES) {
+    if (tireWidthMm <= rule.max) return rule.min;
+  }
+  return 15;
+}
+
 // ─── Unit conversions ─────────────────────────────────────────────
 
 const KG_TO_LBS = 2.20462;
@@ -195,9 +215,10 @@ function calculatePressure(p) {
     rearPsi = Math.min(72.5, rearPsi);
   }
 
-  // Safety clamp
-  frontPsi = Math.max(15, Math.min(120, frontPsi));
-  rearPsi = Math.max(15, Math.min(120, rearPsi));
+  // Safety clamp (tire-width-aware minimum)
+  const minPsi = Math.max(getMinPressure(fTireMm), getMinPressure(rTireMm));
+  frontPsi = Math.max(minPsi, Math.min(120, frontPsi));
+  rearPsi = Math.max(minPsi, Math.min(120, rearPsi));
 
   const finalFront = Math.round(frontPsi);
   const finalRear = Math.round(rearPsi);
