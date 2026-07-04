@@ -101,7 +101,7 @@ const MIN_PRESSURES = [
   { max: 32, min: 60 },   // road
   { max: 40, min: 40 },   // gravel narrow
   { max: 47, min: 28 },   // gravel standard
-  { max: 55, min: 22 },   // mountain/gravel wide
+  { max: 55, min: 17 },   // mountain/gravel wide
   { max: 65, min: 18 },   // plus tires
   { max: 80, min: 15 },   // fat bike
 ];
