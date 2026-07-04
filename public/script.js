@@ -242,9 +242,12 @@ function renderRiderList() {
 async function addRider() {
   const name = document.getElementById('newRiderName').value.trim();
   if (!name) return;
-  await api('/riders', { method: 'POST', body: { name } });
+  const result = await api('/riders', { method: 'POST', body: { name } });
   document.getElementById('newRiderName').value = '';
   await loadRiders();
+  document.getElementById('riderSelect').value = result.id;
+  currentRiderId = result.id;
+  await loadBikes(currentRiderId);
 }
 
 async function deleteRider(id) {
@@ -277,11 +280,15 @@ async function addBike() {
   const casing_type = document.getElementById('newBikeCasing').value;
   const is_tubeless = document.getElementById('newBikeTubeless').checked ? 1 : 0;
   if (!name || !tire_width) { alert('Name and tire width required'); return; }
-  await api('/bikes', { method: 'POST', body: { rider_id: Number(currentRiderId), name, tire_width, tire_width_unit, rim_width_mm, casing_type, is_tubeless } });
+  const result = await api('/bikes', { method: 'POST', body: { rider_id: Number(currentRiderId), name, tire_width, tire_width_unit, rim_width_mm, casing_type, is_tubeless } });
   document.getElementById('newBikeName').value = '';
   document.getElementById('newBikeTireWidth').value = '';
   document.getElementById('addBikeForm').style.display = 'none';
   await loadBikes(currentRiderId);
+  // Auto-select the new bike
+  document.getElementById('bikeSelect').value = result.id;
+  currentBikeId = result.id;
+  await loadSetups(currentBikeId);
 }
 
 async function deleteBike(id) {
@@ -314,10 +321,14 @@ async function addSetup() {
   const bike_type = document.getElementById('newSetupBikeType').value;
   const surface_type = document.getElementById('newSetupSurface').value;
   if (!name || !rider_weight || !bike_weight) { alert('Name, rider weight, and bike weight required'); return; }
-  await api('/setups', { method: 'POST', body: { bike_id: Number(currentBikeId), name, rider_weight, bike_weight, additional_weight, weight_unit, bike_type, surface_type } });
+  const result = await api('/setups', { method: 'POST', body: { bike_id: Number(currentBikeId), name, rider_weight, bike_weight, additional_weight, weight_unit, bike_type, surface_type } });
   document.getElementById('newSetupName').value = '';
   document.getElementById('addSetupForm').style.display = 'none';
   await loadSetups(currentBikeId);
+  // Auto-select the new setup
+  document.getElementById('setupSelect').value = result.id;
+  currentSetupId = result.id;
+  loadHistory(currentSetupId);
 }
 
 async function deleteSetup(id) {

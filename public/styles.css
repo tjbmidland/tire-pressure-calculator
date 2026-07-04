@@ -212,6 +212,13 @@ header h1 {
     margin-top: 4px;
 }
 
+.form-label {
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: #666;
+    margin-top: 4px;
+}
+
 /* ─── Calculator ──────────────────────────────────────────────── */
 
 .calculator {
