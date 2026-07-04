@@ -50,21 +50,8 @@
                         </select>
                     </div>
                     <input type="number" id="newBikeRearTireWidth" placeholder="Rear tire width (blank = same as front)" step="0.5">
-                    <div class="add-form-row">
-                        <input type="number" id="newBikeRimWidth" placeholder="Rim internal width (mm)" step="0.5" value="23">
-                        <select id="newBikeRimType">
-                            <option value="hooked">Hooked</option>
-                            <option value="hookless">Hookless</option>
-                        </select>
-                    </div>
-                    <select id="newBikeFrontCasing">
-                        <option value="endurance">Endurance</option>
-                        <option value="endurance_plus">Endurance+</option>
-                        <option value="standard">Standard</option>
-                        <option value="extralight">Extralight/Race</option>
-                    </select>
-                    <select id="newBikeRearCasing">
-                        <option value="">Rear casing (blank = same as front)</option>
+                    <input type="number" id="newBikeRimWidth" placeholder="Rim internal width (mm; 23mm default)" step="0.5" value="23">
+                    <select id="newBikeCasing">
                         <option value="endurance">Endurance</option>
                         <option value="endurance_plus">Endurance+</option>
                         <option value="standard">Standard</option>
@@ -93,19 +80,18 @@
                     <input type="number" id="newSetupBikeWeight" placeholder="Bike weight" step="0.1">
                     <input type="number" id="newSetupFrontLuggage" placeholder="Front luggage weight" step="0.1">
                     <input type="number" id="newSetupRearLuggage" placeholder="Rear luggage weight" step="0.1">
-                    <input type="number" id="newSetupBikepackingLoad" placeholder="Bikepacking load (splits front/rear)" step="0.1">
+                    <input type="number" id="newSetupFrameLoad" placeholder="Frame load (splits front/rear)" step="0.1">
                     <label class="form-label">Bike type</label>
                     <select id="newSetupBikeType">
                         <option value="gravel">Gravel</option>
                         <option value="road">Road</option>
                         <option value="mountain">Mountain</option>
-                        <option value="bikepacking">Bikepacking</option>
                     </select>
-                    <label class="form-label">Frame size</label>
+                    <label class="form-label">Rider height / Frame size</label>
                     <select id="newSetupFrameSize">
-                        <option value="medium">Medium (165-182cm / 5'5"-6'0")</option>
-                        <option value="small">Small (<168cm / 5'6")</option>
-                        <option value="tall">Tall (>182cm / 6'0")</option>
+                        <option value="medium">Medium (5'5"–6'0" / 165–182cm)</option>
+                        <option value="small">Small (under 5'6" / 168cm)</option>
+                        <option value="tall">Tall (over 6'0" / 182cm)</option>
                     </select>
                     <label class="form-label">Riding position</label>
                     <select id="newSetupRidingPosition">
@@ -157,38 +143,33 @@
                     <label for="rimWidth">Rim Internal Width</label>
                     <div class="calc-input-row">
                         <input type="number" id="rimWidth" min="13" step="0.5" value="23" placeholder="23">
-                        <select id="rimType">
-                            <option value="hooked">Hooked</option>
-                            <option value="hookless">Hookless</option>
-                        </select>
+                        <span class="unit-label">mm</span>
                     </div>
                 </div>
                 <div class="input-group">
-                    <label class="toggle-label">
-                        <input type="checkbox" id="isTubeless" checked>
-                        <span>Tubeless</span>
-                    </label>
-                </div>
-            </div>
-
-            <div class="input-row-pair">
-                <div class="input-group">
-                    <label for="frontCasing">Front Casing</label>
-                    <select id="frontCasing">
+                    <label for="casingType">Casing</label>
+                    <select id="casingType">
                         <option value="endurance">Endurance</option>
                         <option value="endurance_plus">Endurance+</option>
                         <option value="standard">Standard</option>
                         <option value="extralight">Extralight/Race</option>
                     </select>
                 </div>
+            </div>
+
+            <div class="input-row-pair">
                 <div class="input-group">
-                    <label for="rearCasing">Rear Casing</label>
-                    <select id="rearCasing">
-                        <option value="">Same as front</option>
-                        <option value="endurance">Endurance</option>
-                        <option value="endurance_plus">Endurance+</option>
-                        <option value="standard">Standard</option>
-                        <option value="extralight">Extralight/Race</option>
+                    <label class="toggle-label">
+                        <input type="checkbox" id="isTubeless" checked>
+                        <span>Tubeless</span>
+                    </label>
+                </div>
+                <div class="input-group">
+                    <label for="bikeType">Bike Type</label>
+                    <select id="bikeType">
+                        <option value="gravel">Gravel</option>
+                        <option value="road">Road</option>
+                        <option value="mountain">Mountain</option>
                     </select>
                 </div>
             </div>
@@ -231,34 +212,22 @@
             </div>
 
             <div class="input-group">
-                <label for="bikepackingLoad">Bikepacking Load (splits equally front/rear)</label>
+                <label for="frameLoad">Frame Load (splits equally front/rear)</label>
                 <div class="calc-input-row">
-                    <input type="number" id="bikepackingLoad" min="0" step="0.1" value="0" placeholder="0">
-                    <span class="unit-label" id="bikepackingLoadUnit">lbs</span>
+                    <input type="number" id="frameLoad" min="0" step="0.1" value="0" placeholder="0">
+                    <span class="unit-label" id="frameLoadUnit">lbs</span>
                 </div>
             </div>
 
             <div class="input-row-pair">
                 <div class="input-group">
-                    <label for="bikeType">Bike Type</label>
-                    <select id="bikeType">
-                        <option value="gravel">Gravel</option>
-                        <option value="road">Road</option>
-                        <option value="mountain">Mountain</option>
-                        <option value="bikepacking">Bikepacking</option>
-                    </select>
-                </div>
-                <div class="input-group">
-                    <label for="frameSize">Frame Size</label>
+                    <label for="frameSize">Rider Height / Frame Size</label>
                     <select id="frameSize">
-                        <option value="medium">Medium (165-182cm)</option>
-                        <option value="small">Small (<168cm)</option>
-                        <option value="tall">Tall (>182cm)</option>
+                        <option value="medium">Medium (5'5"–6'0" / 165–182cm)</option>
+                        <option value="small">Small (under 5'6" / 168cm)</option>
+                        <option value="tall">Tall (over 6'0" / 182cm)</option>
                     </select>
                 </div>
-            </div>
-
-            <div class="input-row-pair">
                 <div class="input-group">
                     <label for="ridingPosition">Riding Position</label>
                     <select id="ridingPosition">
@@ -268,18 +237,19 @@
                         <option value="aero">Aero / Flat back</option>
                     </select>
                 </div>
-                <div class="input-group">
-                    <label for="surfaceType">Terrain</label>
-                    <select id="surfaceType">
-                        <option value="smooth_gravel">Smooth gravel</option>
-                        <option value="smooth_asphalt">Smooth asphalt</option>
-                        <option value="rough_asphalt">Rough asphalt</option>
-                        <option value="coarse_gravel">Coarse gravel</option>
-                        <option value="rough_gravel">Rough gravel / Large rocks</option>
-                        <option value="mixed_paved_gravel">Mixed paved/gravel</option>
-                        <option value="singletrack">Singletrack / Mountain</option>
-                    </select>
-                </div>
+            </div>
+
+            <div class="input-group">
+                <label for="surfaceType">Terrain</label>
+                <select id="surfaceType">
+                    <option value="smooth_gravel">Smooth gravel</option>
+                    <option value="smooth_asphalt">Smooth asphalt</option>
+                    <option value="rough_asphalt">Rough asphalt</option>
+                    <option value="coarse_gravel">Coarse gravel</option>
+                    <option value="rough_gravel">Rough gravel / Large rocks</option>
+                    <option value="mixed_paved_gravel">Mixed paved/gravel</option>
+                    <option value="singletrack">Singletrack / Mountain</option>
+                </select>
             </div>
 
             <button id="calculateBtn" class="calculate-btn">Calculate Pressure</button>

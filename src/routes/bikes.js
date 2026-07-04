@@ -14,21 +14,21 @@ router.get('/:id', (req, res) => {
 });
 
 router.post('/', (req, res) => {
-  const { rider_id, name, front_tire_width, rear_tire_width, tire_width_unit, rim_width_mm, rim_type, front_casing, rear_casing, is_tubeless, notes } = req.body;
+  const { rider_id, name, front_tire_width, rear_tire_width, tire_width_unit, rim_width_mm, casing_type, is_tubeless, notes } = req.body;
   if (!rider_id || !name?.trim() || !front_tire_width) {
     return res.status(400).json({ error: 'rider_id, name, front_tire_width required' });
   }
   const result = db.prepare(
-    'INSERT INTO bikes (rider_id, name, front_tire_width, rear_tire_width, tire_width_unit, rim_width_mm, rim_type, front_casing, rear_casing, is_tubeless, notes) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)'
-  ).run(rider_id, name.trim(), front_tire_width, rear_tire_width ?? null, tire_width_unit ?? 'mm', rim_width_mm ?? 23, rim_type ?? 'hooked', front_casing ?? 'endurance', rear_casing ?? null, is_tubeless ?? 1, notes ?? null);
+    'INSERT INTO bikes (rider_id, name, front_tire_width, rear_tire_width, tire_width_unit, rim_width_mm, casing_type, is_tubeless, notes) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)'
+  ).run(rider_id, name.trim(), front_tire_width, rear_tire_width ?? null, tire_width_unit ?? 'mm', rim_width_mm ?? 23, casing_type ?? 'endurance', is_tubeless ?? 1, notes ?? null);
   res.status(201).json({ id: result.lastInsertRowid });
 });
 
 router.put('/:id', (req, res) => {
-  const { name, front_tire_width, rear_tire_width, tire_width_unit, rim_width_mm, rim_type, front_casing, rear_casing, is_tubeless, notes } = req.body;
+  const { name, front_tire_width, rear_tire_width, tire_width_unit, rim_width_mm, casing_type, is_tubeless, notes } = req.body;
   const result = db.prepare(
-    'UPDATE bikes SET name = ?, front_tire_width = ?, rear_tire_width = ?, tire_width_unit = ?, rim_width_mm = ?, rim_type = ?, front_casing = ?, rear_casing = ?, is_tubeless = ?, notes = ? WHERE id = ?'
-  ).run(name?.trim(), front_tire_width, rear_tire_width, tire_width_unit, rim_width_mm, rim_type, front_casing, rear_casing, is_tubeless, notes ?? null, req.params.id);
+    'UPDATE bikes SET name = ?, front_tire_width = ?, rear_tire_width = ?, tire_width_unit = ?, rim_width_mm = ?, casing_type = ?, is_tubeless = ?, notes = ? WHERE id = ?'
+  ).run(name?.trim(), front_tire_width, rear_tire_width, tire_width_unit, rim_width_mm, casing_type, is_tubeless, notes ?? null, req.params.id);
   if (result.changes === 0) return res.status(404).json({ error: 'Not found' });
   res.json({ id: Number(req.params.id) });
 });
