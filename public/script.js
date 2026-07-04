@@ -39,7 +39,12 @@ async function loadBikes(riderId) {
   const sel = document.getElementById('bikeSelect');
   sel.disabled = !riderId;
   sel.innerHTML = '<option value="">Bike...</option>' +
-    bikes.map(b => `<option value="${b.id}">${b.name} (${b.tire_width}${b.tire_width_unit})</option>`).join('');
+    bikes.map(b => {
+      const w = b.rear_tire_width && b.rear_tire_width !== b.front_tire_width
+        ? `${b.front_tire_width}/${b.rear_tire_width}${b.tire_width_unit}`
+        : `${b.front_tire_width}${b.tire_width_unit}`;
+      return `<option value="${b.id}">${b.name} (${w})</option>`;
+    }).join('');
   document.getElementById('bikeRiderLabel').textContent =
     riderId ? `for ${riders.find(r => r.id == riderId)?.name || ''}` : '';
   renderBikeList();
@@ -96,10 +101,14 @@ document.getElementById('bikeSelect').addEventListener('change', async (e) => {
   if (currentBikeId) {
     const bike = bikes.find(b => b.id == currentBikeId);
     if (bike) {
-      document.getElementById('tireWidth').value = bike.tire_width;
+      document.getElementById('frontTireWidth').value = bike.front_tire_width;
+      document.getElementById('rearTireWidth').value = bike.rear_tire_width || '';
       document.getElementById('tireUnit').value = bike.tire_width_unit;
+      document.getElementById('rearTireUnit').textContent = bike.tire_width_unit;
       document.getElementById('rimWidth').value = bike.rim_width_mm;
-      document.getElementById('casingType').value = bike.casing_type;
+      document.getElementById('rimType').value = bike.rim_type;
+      document.getElementById('frontCasing').value = bike.front_casing;
+      document.getElementById('rearCasing').value = bike.rear_casing || '';
       document.getElementById('isTubeless').checked = !!bike.is_tubeless;
     }
   }
@@ -109,25 +118,31 @@ document.getElementById('setupSelect').addEventListener('change', (e) => {
   currentSetupId = e.target.value || null;
   loadHistory(currentSetupId);
   if (currentSetupId) {
-    const setup = setups.find(s => s.id == currentSetupId);
-    if (setup) {
-      document.getElementById('riderWeight').value = setup.rider_weight;
-      document.getElementById('bikeWeight').value = setup.bike_weight;
-      document.getElementById('gearWeight').value = setup.additional_weight;
-      document.getElementById('weightUnit').value = setup.weight_unit;
-      document.getElementById('frameSize').value = setup.frame_size;
-      document.getElementById('ridingPosition').value = setup.riding_position;
-      document.getElementById('surfaceType').value = setup.surface_type;
-      document.getElementById('bikeWeightUnit').textContent = setup.weight_unit;
-      document.getElementById('gearWeightUnit').textContent = setup.weight_unit;
+    const s = setups.find(x => x.id == currentSetupId);
+    if (s) {
+      document.getElementById('riderWeight').value = s.rider_weight;
+      document.getElementById('bikeWeight').value = s.bike_weight;
+      document.getElementById('frontLuggage').value = s.front_luggage_weight || 0;
+      document.getElementById('rearLuggage').value = s.rear_luggage_weight || 0;
+      document.getElementById('bikepackingLoad').value = s.bikepacking_load_weight || 0;
+      document.getElementById('weightUnit').value = s.weight_unit;
+      document.getElementById('bikeType').value = s.bike_type;
+      document.getElementById('frameSize').value = s.frame_size;
+      document.getElementById('ridingPosition').value = s.riding_position;
+      document.getElementById('surfaceType').value = s.surface_type;
+      // Update unit labels
+      document.querySelectorAll('#bikeWeightUnit, #frontLuggageUnit, #rearLuggageUnit, #bikepackingLoadUnit').forEach(el => el.textContent = s.weight_unit);
     }
   }
   document.getElementById('saveBtn').style.display = currentSetupId ? 'block' : 'none';
 });
 
 document.getElementById('weightUnit').addEventListener('change', function() {
-  document.getElementById('bikeWeightUnit').textContent = this.value;
-  document.getElementById('gearWeightUnit').textContent = this.value;
+  document.querySelectorAll('#bikeWeightUnit, #frontLuggageUnit, #rearLuggageUnit, #bikepackingLoadUnit').forEach(el => el.textContent = this.value);
+});
+
+document.getElementById('tireUnit').addEventListener('change', function() {
+  document.getElementById('rearTireUnit').textContent = this.value;
 });
 
 document.getElementById('newSetupWeightUnit').addEventListener('change', function() {
@@ -137,20 +152,26 @@ document.getElementById('newSetupWeightUnit').addEventListener('change', functio
 // ─── Calculator ────────────────────────────────────────────────────
 
 document.getElementById('calculateBtn').addEventListener('click', async () => {
-  const tireWidth = parseFloat(document.getElementById('tireWidth').value);
+  const frontTireWidth = parseFloat(document.getElementById('frontTireWidth').value);
+  const rearTireWidth = parseFloat(document.getElementById('rearTireWidth').value) || undefined;
   const tireUnit = document.getElementById('tireUnit').value;
   const rimWidth = parseFloat(document.getElementById('rimWidth').value) || 23;
+  const rimType = document.getElementById('rimType').value;
+  const frontCasing = document.getElementById('frontCasing').value;
+  const rearCasing = document.getElementById('rearCasing').value || undefined;
+  const isTubeless = document.getElementById('isTubeless').checked;
   const riderWeight = parseFloat(document.getElementById('riderWeight').value);
   const bikeWeight = parseFloat(document.getElementById('bikeWeight').value);
-  const gearWeight = parseFloat(document.getElementById('gearWeight').value) || 0;
+  const frontLuggage = parseFloat(document.getElementById('frontLuggage').value) || 0;
+  const rearLuggage = parseFloat(document.getElementById('rearLuggage').value) || 0;
+  const bikepackingLoad = parseFloat(document.getElementById('bikepackingLoad').value) || 0;
   const weightUnit = document.getElementById('weightUnit').value;
+  const bikeType = document.getElementById('bikeType').value;
   const frameSize = document.getElementById('frameSize').value;
   const ridingPosition = document.getElementById('ridingPosition').value;
   const surfaceType = document.getElementById('surfaceType').value;
-  const casingType = document.getElementById('casingType').value;
-  const isTubeless = document.getElementById('isTubeless').checked;
 
-  if (!tireWidth || !riderWeight || !bikeWeight) {
+  if (!frontTireWidth || !riderWeight || !bikeWeight) {
     alert('Please fill in tire width, rider weight, and bike weight');
     return;
   }
@@ -159,18 +180,17 @@ document.getElementById('calculateBtn').addEventListener('click', async () => {
     const result = await api('/pressures/calculate', {
       method: 'POST',
       body: {
-        riderWeight,
-        bikeWeight,
-        additionalWeight: gearWeight,
-        tireWidth,
-        tireWidthUnit: tireUnit,
+        riderWeight, bikeWeight,
+        frontLuggageWeight: frontLuggage,
+        rearLuggageWeight: rearLuggage,
+        bikepackingLoadWeight: bikepackingLoad,
         weightUnit,
-        rimWidthMm: rimWidth,
-        casingType,
-        isTubeless,
-        surfaceType,
-        frameSize,
-        ridingPosition,
+        frontTireWidth, rearTireWidth,
+        tireWidthUnit: tireUnit,
+        rimWidthMm: rimWidth, rimType,
+        frontCasing, rearCasing,
+        isTubeless, bikeType,
+        frameSize, ridingPosition, surfaceType,
       },
     });
 
@@ -256,35 +276,39 @@ async function deleteRider(id) {
   if (!confirm('Delete rider and all their bikes/setups?')) return;
   await api(`/riders/${id}`, { method: 'DELETE' });
   if (currentRiderId == id) { currentRiderId = null; currentBikeId = null; currentSetupId = null; }
-  await loadRiders();
-  await loadBikes(null);
-  await loadSetups(null);
-  loadHistory(null);
+  await loadRiders(); await loadBikes(null); await loadSetups(null); loadHistory(null);
 }
 
 // Bikes
 function renderBikeList() {
   const el = document.getElementById('bikeList');
-  el.innerHTML = bikes.map(b => `
-    <div class="item-row">
-      <span>${b.name} — ${b.tire_width}${b.tire_width_unit}, ${b.rim_width_mm}mm rim, ${b.casing_type}${b.is_tubeless ? ', tubeless' : ''}</span>
-      <button class="btn-link btn-delete" onclick="deleteBike(${b.id})">×</button>
-    </div>
-  `).join('');
+  el.innerHTML = bikes.map(b => {
+    const w = b.rear_tire_width && b.rear_tire_width !== b.front_tire_width
+      ? `${b.front_tire_width}/${b.rear_tire_width}${b.tire_width_unit}`
+      : `${b.front_tire_width}${b.tire_width_unit}`;
+    const c = b.rear_casing && b.rear_casing !== b.front_casing
+      ? `${b.front_casing}/${b.rear_casing}`
+      : b.front_casing;
+    return `<div class="item-row"><span>${b.name} — ${w}, ${b.rim_width_mm}mm ${b.rim_type}, ${c}${b.is_tubeless ? ', tubeless' : ''}</span><button class="btn-link btn-delete" onclick="deleteBike(${b.id})">×</button></div>`;
+  }).join('');
 }
 
 async function addBike() {
   if (!currentRiderId) { alert('Select a rider first'); return; }
   const name = document.getElementById('newBikeName').value.trim();
-  const tire_width = parseFloat(document.getElementById('newBikeTireWidth').value);
+  const front_tire_width = parseFloat(document.getElementById('newBikeFrontTireWidth').value);
+  const rear_tire_width = parseFloat(document.getElementById('newBikeRearTireWidth').value) || null;
   const tire_width_unit = document.getElementById('newBikeTireUnit').value;
   const rim_width_mm = parseFloat(document.getElementById('newBikeRimWidth').value) || 23;
-  const casing_type = document.getElementById('newBikeCasing').value;
+  const rim_type = document.getElementById('newBikeRimType').value;
+  const front_casing = document.getElementById('newBikeFrontCasing').value;
+  const rear_casing = document.getElementById('newBikeRearCasing').value || null;
   const is_tubeless = document.getElementById('newBikeTubeless').checked ? 1 : 0;
-  if (!name || !tire_width) { alert('Name and tire width required'); return; }
-  const result = await api('/bikes', { method: 'POST', body: { rider_id: Number(currentRiderId), name, tire_width, tire_width_unit, rim_width_mm, casing_type, is_tubeless } });
+  if (!name || !front_tire_width) { alert('Name and front tire width required'); return; }
+  const result = await api('/bikes', { method: 'POST', body: { rider_id: Number(currentRiderId), name, front_tire_width, rear_tire_width, tire_width_unit, rim_width_mm, rim_type, front_casing, rear_casing, is_tubeless } });
   document.getElementById('newBikeName').value = '';
-  document.getElementById('newBikeTireWidth').value = '';
+  document.getElementById('newBikeFrontTireWidth').value = '';
+  document.getElementById('newBikeRearTireWidth').value = '';
   document.getElementById('addBikeForm').style.display = 'none';
   await loadBikes(currentRiderId);
   document.getElementById('bikeSelect').value = result.id;
@@ -296,20 +320,20 @@ async function deleteBike(id) {
   if (!confirm('Delete bike and all its setups?')) return;
   await api(`/bikes/${id}`, { method: 'DELETE' });
   if (currentBikeId == id) { currentBikeId = null; currentSetupId = null; }
-  await loadBikes(currentRiderId);
-  await loadSetups(null);
-  loadHistory(null);
+  await loadBikes(currentRiderId); await loadSetups(null); loadHistory(null);
 }
 
 // Setups
 function renderSetupList() {
   const el = document.getElementById('setupList');
-  el.innerHTML = setups.map(s => `
-    <div class="item-row">
-      <span>${s.name} — ${s.rider_weight}${s.weight_unit} rider, ${s.bike_weight}${s.weight_unit} bike${s.additional_weight ? ', +' + s.additional_weight + s.weight_unit + ' gear' : ''}</span>
-      <button class="btn-link btn-delete" onclick="deleteSetup(${s.id})">×</button>
-    </div>
-  `).join('');
+  el.innerHTML = setups.map(s => {
+    const w = s.weight_unit;
+    let desc = `${s.rider_weight}${w} rider, ${s.bike_weight}${w} bike`;
+    if (s.front_luggage_weight) desc += `, +${s.front_luggage_weight}${w} front`;
+    if (s.rear_luggage_weight) desc += `, +${s.rear_luggage_weight}${w} rear`;
+    if (s.bikepacking_load_weight) desc += `, +${s.bikepacking_load_weight}${w} bpk`;
+    return `<div class="item-row"><span>${s.name} — ${desc}</span><button class="btn-link btn-delete" onclick="deleteSetup(${s.id})">×</button></div>`;
+  }).join('');
 }
 
 async function addSetup() {
@@ -317,13 +341,16 @@ async function addSetup() {
   const name = document.getElementById('newSetupName').value.trim();
   const rider_weight = parseFloat(document.getElementById('newSetupRiderWeight').value);
   const bike_weight = parseFloat(document.getElementById('newSetupBikeWeight').value);
-  const additional_weight = parseFloat(document.getElementById('newSetupGearWeight').value) || 0;
+  const front_luggage_weight = parseFloat(document.getElementById('newSetupFrontLuggage').value) || 0;
+  const rear_luggage_weight = parseFloat(document.getElementById('newSetupRearLuggage').value) || 0;
+  const bikepacking_load_weight = parseFloat(document.getElementById('newSetupBikepackingLoad').value) || 0;
   const weight_unit = document.getElementById('newSetupWeightUnit').value;
+  const bike_type = document.getElementById('newSetupBikeType').value;
   const frame_size = document.getElementById('newSetupFrameSize').value;
   const riding_position = document.getElementById('newSetupRidingPosition').value;
   const surface_type = document.getElementById('newSetupSurface').value;
   if (!name || !rider_weight || !bike_weight) { alert('Name, rider weight, and bike weight required'); return; }
-  const result = await api('/setups', { method: 'POST', body: { bike_id: Number(currentBikeId), name, rider_weight, bike_weight, additional_weight, weight_unit, frame_size, riding_position, surface_type } });
+  const result = await api('/setups', { method: 'POST', body: { bike_id: Number(currentBikeId), name, rider_weight, bike_weight, front_luggage_weight, rear_luggage_weight, bikepacking_load_weight, weight_unit, bike_type, frame_size, riding_position, surface_type } });
   document.getElementById('newSetupName').value = '';
   document.getElementById('addSetupForm').style.display = 'none';
   await loadSetups(currentBikeId);
@@ -336,8 +363,7 @@ async function deleteSetup(id) {
   if (!confirm('Delete setup and saved pressures?')) return;
   await api(`/setups/${id}`, { method: 'DELETE' });
   if (currentSetupId == id) { currentSetupId = null; }
-  await loadSetups(currentBikeId);
-  loadHistory(null);
+  await loadSetups(currentBikeId); loadHistory(null);
 }
 
 // ─── Init ──────────────────────────────────────────────────────────
