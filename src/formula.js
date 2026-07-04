@@ -56,8 +56,8 @@ function surfaceCorrection(surfaceType) {
 const BIKE_DIST = {
   road:        [0.47, 0.53],
   gravel:      [0.467, 0.533],
-  mountain:    [0.44, 0.56],
-  bikepacking: [0.46, 0.54],
+  mountain:    [0.42, 0.58],
+  bikepacking: [0.455, 0.545],
 };
 
 const FRAME_SHIFT = {
