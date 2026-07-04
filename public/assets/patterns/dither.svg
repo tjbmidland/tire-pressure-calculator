@@ -1,6 +1,19 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="4" height="4" viewBox="0 0 4 4">
-  <rect width="1" height="1" x="0" y="0" fill="rgba(255,255,255,0.03)"/>
-  <rect width="1" height="1" x="2" y="1" fill="rgba(255,255,255,0.03)"/>
-  <rect width="1" height="1" x="1" y="2" fill="rgba(255,255,255,0.03)"/>
-  <rect width="1" height="1" x="3" y="3" fill="rgba(255,255,255,0.03)"/>
+<svg xmlns="http://www.w3.org/2000/svg" width="8" height="8" viewBox="0 0 8 8">
+  <!-- Dense dithering — Marathon digital artifact -->
+  <rect width="1" height="1" x="0" y="0" fill="rgba(194,254,11,0.04)"/>
+  <rect width="1" height="1" x="4" y="0" fill="rgba(1,255,255,0.03)"/>
+  <rect width="1" height="1" x="2" y="1" fill="rgba(255,255,255,0.02)"/>
+  <rect width="1" height="1" x="6" y="1" fill="rgba(194,254,11,0.03)"/>
+  <rect width="1" height="1" x="1" y="2" fill="rgba(1,255,255,0.02)"/>
+  <rect width="1" height="1" x="5" y="2" fill="rgba(255,255,255,0.03)"/>
+  <rect width="1" height="1" x="3" y="3" fill="rgba(194,254,11,0.04)"/>
+  <rect width="1" height="1" x="7" y="3" fill="rgba(1,255,255,0.02)"/>
+  <rect width="1" height="1" x="0" y="4" fill="rgba(255,255,255,0.02)"/>
+  <rect width="1" height="1" x="4" y="4" fill="rgba(194,254,11,0.03)"/>
+  <rect width="1" height="1" x="2" y="5" fill="rgba(1,255,255,0.03)"/>
+  <rect width="1" height="1" x="6" y="5" fill="rgba(255,255,255,0.02)"/>
+  <rect width="1" height="1" x="1" y="6" fill="rgba(194,254,11,0.02)"/>
+  <rect width="1" height="1" x="5" y="6" fill="rgba(255,13,26,0.02)"/>
+  <rect width="1" height="1" x="3" y="7" fill="rgba(1,255,255,0.04)"/>
+  <rect width="1" height="1" x="7" y="7" fill="rgba(194,254,11,0.02)"/>
 </svg>

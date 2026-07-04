@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="Calculate optimal tire pressure based on rider weight, bike weight, tire width, and riding conditions">
-    <meta name="theme-color" content="#000000">
+    <meta name="theme-color" content="#080808">
     <title>Tire Pressure Calculator</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -16,11 +16,15 @@
 <body>
     <div class="container">
         <header>
+            <div class="header-meta">
+                <span class="header-mark">+ NUCALORIC SYS</span>
+                <span class="header-serial">REV 3.0 ◇ 2026</span>
+            </div>
             <h1>Tire Pressure</h1>
             <p class="subtitle">Based on Rene Herse v3 model</p>
         </header>
 
-        <!-- Onboarding / Quick Start -->
+        <!-- Onboarding -->
         <div id="onboarding" class="onboarding">
             <div class="onboarding-options">
                 <button class="onboarding-btn" onclick="showManage('rider')">
@@ -35,7 +39,7 @@
             </div>
         </div>
 
-        <!-- Profile selector (hidden initially) -->
+        <!-- Profile selector -->
         <div id="profileBar" class="profile-bar" style="display: none;">
             <div class="profile-selects">
                 <select id="riderSelect"><option value="">Rider</option></select>
@@ -141,8 +145,22 @@
             </div>
         </div>
 
+        <!-- Saved pressures (above calculator) -->
+        <div id="history" class="history" style="display: none;">
+            <div class="history-header">
+                <h2>Saved Pressures</h2>
+                <span class="history-count" id="historyCount"></span>
+            </div>
+            <div id="historyList"></div>
+        </div>
+
         <!-- Calculator -->
         <div id="calculator" class="calculator" style="display: none;">
+            <div class="calculator-header">
+                <span class="calculator-label">Calculate</span>
+                <span class="calculator-serial">SYS::CALC ◇ +</span>
+            </div>
+
             <div class="input-row-pair">
                 <div class="input-group">
                     <label for="frontTireWidth">Front Tire Width</label>
@@ -280,37 +298,36 @@
             <button id="calculateBtn" class="calculate-btn">Calculate</button>
 
             <div id="results" class="results" style="display: none;">
-                <h2>Recommended Pressure</h2>
-                <div class="pressure-card">
-                    <h3>Front</h3>
-                    <div class="pressure-values">
-                        <div class="pressure-option">
+                <div class="results-header">
+                    <h2>Recommended Pressure</h2>
+                    <span class="results-serial">OUTPUT ◇ +</span>
+                </div>
+                <div class="pressure-grid">
+                    <div class="pressure-card">
+                        <div class="pressure-card-label">Front</div>
+                        <div class="pressure-card-value">
                             <span class="value" id="frontPsi">--</span>
-                            <span class="unit">psi</span>
+                            <span class="value-unit">psi</span>
+                        </div>
+                        <div class="pressure-card-secondary">
                             <span class="value-bar" id="frontBar">--</span>
-                            <span class="unit">bar</span>
+                            <span class="value-unit-small">bar</span>
                         </div>
                     </div>
-                </div>
-                <div class="pressure-card">
-                    <h3>Rear</h3>
-                    <div class="pressure-values">
-                        <div class="pressure-option">
+                    <div class="pressure-card">
+                        <div class="pressure-card-label">Rear</div>
+                        <div class="pressure-card-value">
                             <span class="value" id="rearPsi">--</span>
-                            <span class="unit">psi</span>
+                            <span class="value-unit">psi</span>
+                        </div>
+                        <div class="pressure-card-secondary">
                             <span class="value-bar" id="rearBar">--</span>
-                            <span class="unit">bar</span>
+                            <span class="value-unit-small">bar</span>
                         </div>
                     </div>
                 </div>
                 <button id="saveBtn" class="btn-link save-btn" style="display: none;" onclick="savePressure()">Save this result</button>
             </div>
-        </div>
-
-        <!-- Saved pressures history -->
-        <div id="history" class="history" style="display: none;">
-            <h2>Saved Pressures</h2>
-            <div id="historyList"></div>
         </div>
     </div>
 
