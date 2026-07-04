@@ -42,7 +42,7 @@
                 <div id="bikeList" class="item-list"></div>
                 <div class="add-form" id="addBikeForm" style="display: none;">
                     <input type="text" id="newBikeName" placeholder="Bike name">
-                    <div class="input-row">
+                    <div class="add-form-row">
                         <input type="number" id="newBikeTireWidth" placeholder="Tire width" step="0.5">
                         <select id="newBikeTireUnit">
                             <option value="mm">mm</option>
@@ -69,14 +69,20 @@
                 <div id="setupList" class="item-list"></div>
                 <div class="add-form" id="addSetupForm" style="display: none;">
                     <input type="text" id="newSetupName" placeholder="Setup name (e.g. Normal, Bikepacking)">
-                    <div class="input-row">
+                    <div class="add-form-row">
                         <input type="number" id="newSetupRiderWeight" placeholder="Rider weight" step="0.5">
                         <select id="newSetupWeightUnit">
                             <option value="lbs">lbs</option>
                             <option value="kg">kg</option>
                         </select>
                     </div>
-                    <input type="number" id="newSetupBikeWeight" placeholder="Bike weight" step="0.1">
+                    <div class="add-form-row">
+                        <input type="number" id="newSetupBikeWeight" placeholder="Bike weight" step="0.1">
+                        <select id="newSetupWeightUnit2" disabled>
+                            <option value="lbs">lbs</option>
+                            <option value="kg">kg</option>
+                        </select>
+                    </div>
                     <input type="number" id="newSetupGearWeight" placeholder="Gear/bags weight" step="0.1" value="0">
                     <select id="newSetupBikeType">
                         <option value="gravel">Gravel</option>
@@ -87,9 +93,9 @@
                     <select id="newSetupSurface">
                         <option value="smooth_pavement">Smooth pavement</option>
                         <option value="rough_pavement">Rough pavement</option>
-                        <option value="gravel_road">Gravel road</option>
+                        <option value="gravel">Gravel</option>
                         <option value="mixed_trail">Mixed trail</option>
-                        <option value="singletrack">Singletrack</option>
+                        <option value="singletrack">Singletrack/Mountain</option>
                     </select>
                     <button onclick="addSetup()">Add Setup</button>
                 </div>
@@ -101,7 +107,7 @@
         <div class="calculator">
             <div class="input-group">
                 <label for="tireWidth">Tire Width</label>
-                <div class="input-row">
+                <div class="calc-input-row">
                     <input type="number" id="tireWidth" min="1" step="0.5" placeholder="Actual mounted width">
                     <select id="tireUnit">
                         <option value="mm">mm</option>
@@ -112,7 +118,7 @@
 
             <div class="input-group">
                 <label for="rimWidth">Rim Internal Width</label>
-                <div class="input-row">
+                <div class="calc-input-row">
                     <input type="number" id="rimWidth" min="13" step="0.5" value="18" placeholder="18">
                     <span class="unit-label">mm</span>
                 </div>
@@ -121,7 +127,7 @@
             <div class="input-row-pair">
                 <div class="input-group">
                     <label for="riderWeight">Rider Weight</label>
-                    <div class="input-row">
+                    <div class="calc-input-row">
                         <input type="number" id="riderWeight" min="1" step="0.5" placeholder="Weight">
                         <select id="weightUnit">
                             <option value="lbs">lbs</option>
@@ -131,7 +137,7 @@
                 </div>
                 <div class="input-group">
                     <label for="bikeWeight">Bike Weight</label>
-                    <div class="input-row">
+                    <div class="calc-input-row">
                         <input type="number" id="bikeWeight" min="1" step="0.1" placeholder="Weight">
                         <span class="unit-label" id="bikeWeightUnit">lbs</span>
                     </div>
@@ -140,7 +146,7 @@
 
             <div class="input-group">
                 <label for="gearWeight">Gear / Bags Weight</label>
-                <div class="input-row">
+                <div class="calc-input-row">
                     <input type="number" id="gearWeight" min="0" step="0.1" value="0" placeholder="0">
                     <span class="unit-label" id="gearWeightUnit">lbs</span>
                 </div>
@@ -161,9 +167,9 @@
                     <select id="surfaceType">
                         <option value="smooth_pavement">Smooth pavement</option>
                         <option value="rough_pavement">Rough pavement</option>
-                        <option value="gravel_road">Gravel road</option>
+                        <option value="gravel">Gravel</option>
                         <option value="mixed_trail">Mixed trail</option>
-                        <option value="singletrack">Singletrack</option>
+                        <option value="singletrack">Singletrack/Mountain</option>
                     </select>
                 </div>
             </div>

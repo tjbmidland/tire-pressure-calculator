@@ -43,7 +43,7 @@ db.exec(`
     additional_weight REAL DEFAULT 0,
     weight_unit TEXT DEFAULT 'lbs' CHECK(weight_unit IN ('kg', 'lbs')),
     bike_type TEXT DEFAULT 'gravel' CHECK(bike_type IN ('road', 'gravel', 'bikepacking', 'mountain')),
-    surface_type TEXT DEFAULT 'smooth_pavement' CHECK(surface_type IN ('smooth_pavement', 'rough_pavement', 'gravel_road', 'mixed_trail', 'singletrack')),
+    surface_type TEXT DEFAULT 'smooth_pavement' CHECK(surface_type IN ('smooth_pavement', 'rough_pavement', 'gravel', 'mixed_trail', 'singletrack')),
     notes TEXT,
     created_at TEXT DEFAULT (datetime('now')),
     FOREIGN KEY (bike_id) REFERENCES bikes(id) ON DELETE CASCADE

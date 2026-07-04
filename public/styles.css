@@ -97,6 +97,14 @@ header h1 {
     box-shadow: 0 4px 20px rgba(0,0,0,0.15);
 }
 
+.manage-panel .btn-link {
+    color: #667eea;
+}
+
+.manage-panel .btn-delete {
+    color: #e74c3c;
+}
+
 .manage-section {
     margin-bottom: 16px;
 }
@@ -111,14 +119,6 @@ header h1 {
     margin-bottom: 8px;
     padding-bottom: 4px;
     border-bottom: 1px solid #eee;
-}
-
-.manage-panel .btn-link {
-    color: #667eea;
-}
-
-.manage-panel .btn-delete {
-    color: #e74c3c;
 }
 
 .manage-section h3 span {
@@ -170,39 +170,46 @@ header h1 {
 
 .add-form {
     display: flex;
-    flex-wrap: wrap;
-    gap: 6px;
+    flex-direction: column;
+    gap: 8px;
     margin-top: 8px;
-    padding: 10px;
+    padding: 12px;
     background: #f9f9f9;
     border-radius: 8px;
 }
 
 .add-form input, .add-form select {
-    flex: 1;
-    min-width: 120px;
-    padding: 8px 10px;
+    width: 100%;
+    padding: 10px;
     border: 1px solid #ddd;
     border-radius: 6px;
-    font-size: 0.85rem;
+    font-size: 0.9rem;
 }
 
-.add-form label {
+.add-form-row {
     display: flex;
-    align-items: center;
-    gap: 4px;
-    font-size: 0.85rem;
-    color: #555;
+    gap: 6px;
+}
+
+.add-form-row input {
+    flex: 1;
+    min-width: 0;
+}
+
+.add-form-row select {
+    width: auto;
+    flex-shrink: 0;
 }
 
 .add-form button {
-    padding: 8px 14px;
+    padding: 10px 14px;
     background: #667eea;
     color: white;
     border: none;
     border-radius: 6px;
-    font-size: 0.85rem;
+    font-size: 0.9rem;
     cursor: pointer;
+    margin-top: 4px;
 }
 
 /* ─── Calculator ──────────────────────────────────────────────── */
@@ -226,13 +233,8 @@ header h1 {
     font-size: 0.9rem;
 }
 
-.input-row {
-    display: flex;
-    gap: 8px;
-}
-
-.input-row input, .input-group select {
-    flex: 1;
+.input-group select {
+    width: 100%;
     padding: 12px 14px;
     border: 2px solid #e0e0e0;
     border-radius: 8px;
@@ -240,13 +242,45 @@ header h1 {
     transition: border-color 0.3s;
 }
 
-.input-row input:focus, .input-group select:focus {
+.input-group select:focus {
     outline: none;
     border-color: #667eea;
 }
 
-.input-row select {
-    max-width: 120px;
+.calc-input-row {
+    display: flex;
+    gap: 8px;
+}
+
+.calc-input-row input {
+    flex: 1;
+    min-width: 0;
+    padding: 12px 14px;
+    border: 2px solid #e0e0e0;
+    border-radius: 8px;
+    font-size: 16px;
+    transition: border-color 0.3s;
+}
+
+.calc-input-row input:focus {
+    outline: none;
+    border-color: #667eea;
+}
+
+.calc-input-row select {
+    width: auto;
+    flex-shrink: 0;
+    max-width: 110px;
+    padding: 12px 10px;
+    border: 2px solid #e0e0e0;
+    border-radius: 8px;
+    font-size: 15px;
+    transition: border-color 0.3s;
+}
+
+.calc-input-row select:focus {
+    outline: none;
+    border-color: #667eea;
 }
 
 .unit-label {
@@ -257,6 +291,7 @@ header h1 {
     font-size: 16px;
     color: #666;
     white-space: nowrap;
+    flex-shrink: 0;
 }
 
 .input-row-pair {
@@ -265,27 +300,11 @@ header h1 {
     gap: 12px;
 }
 
-.checkbox-label {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    padding: 12px 0;
-    font-weight: 600;
-    color: #333;
-    font-size: 0.9rem;
-}
-
-.checkbox-label input[type="checkbox"] {
-    width: 18px;
-    height: 18px;
-    accent-color: #667eea;
-}
-
 .toggle-label {
     display: flex;
     align-items: center;
     gap: 8px;
-    padding: 12px 0;
+    padding: 10px 0;
     font-weight: 600;
     color: #333;
     font-size: 0.9rem;
@@ -445,11 +464,17 @@ header h1 {
         grid-template-columns: 1fr;
     }
 
-    .add-form {
+    .calc-input-row select {
+        max-width: 90px;
+        font-size: 14px;
+        padding: 12px 8px;
+    }
+
+    .add-form-row {
         flex-direction: column;
     }
 
-    .add-form input, .add-form select {
-        min-width: 100%;
+    .add-form-row select {
+        width: 100%;
     }
 }

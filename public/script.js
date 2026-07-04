@@ -117,7 +117,6 @@ document.getElementById('setupSelect').addEventListener('change', (e) => {
       document.getElementById('weightUnit').value = setup.weight_unit;
       document.getElementById('bikeType').value = setup.bike_type;
       document.getElementById('surfaceType').value = setup.surface_type;
-      // Update weight unit labels
       document.getElementById('bikeWeightUnit').textContent = setup.weight_unit;
       document.getElementById('gearWeightUnit').textContent = setup.weight_unit;
     }
@@ -128,6 +127,11 @@ document.getElementById('setupSelect').addEventListener('change', (e) => {
 document.getElementById('weightUnit').addEventListener('change', function() {
   document.getElementById('bikeWeightUnit').textContent = this.value;
   document.getElementById('gearWeightUnit').textContent = this.value;
+});
+
+// Sync weight unit selector in setup form
+document.getElementById('newSetupWeightUnit').addEventListener('change', function() {
+  document.getElementById('newSetupWeightUnit2').value = this.value;
 });
 
 // ─── Calculator ────────────────────────────────────────────────────
@@ -294,7 +298,7 @@ function renderSetupList() {
   const el = document.getElementById('setupList');
   el.innerHTML = setups.map(s => `
     <div class="item-row">
-      <span>${s.name} — ${s.rider_weight}${s.weight_unit} rider, ${s.bike_weight}${s.weight_unit} bike${s.additional_weight ? ', +' + s.additional_weight + s.weight_unit + ' gear' : ''} (${s.surface_type})</span>
+      <span>${s.name} — ${s.rider_weight}${s.weight_unit} rider, ${s.bike_weight}${s.weight_unit} bike${s.additional_weight ? ', +' + s.additional_weight + s.weight_unit + ' gear' : ''}</span>
       <button class="btn-link btn-delete" onclick="deleteSetup(${s.id})">×</button>
     </div>
   `).join('');
