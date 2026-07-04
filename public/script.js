@@ -116,6 +116,7 @@ document.getElementById('setupSelect').addEventListener('change', (e) => {
       document.getElementById('gearWeight').value = setup.additional_weight;
       document.getElementById('weightUnit').value = setup.weight_unit;
       document.getElementById('frameSize').value = setup.frame_size;
+      document.getElementById('ridingPosition').value = setup.riding_position;
       document.getElementById('surfaceType').value = setup.surface_type;
       document.getElementById('bikeWeightUnit').textContent = setup.weight_unit;
       document.getElementById('gearWeightUnit').textContent = setup.weight_unit;
@@ -144,6 +145,7 @@ document.getElementById('calculateBtn').addEventListener('click', async () => {
   const gearWeight = parseFloat(document.getElementById('gearWeight').value) || 0;
   const weightUnit = document.getElementById('weightUnit').value;
   const frameSize = document.getElementById('frameSize').value;
+  const ridingPosition = document.getElementById('ridingPosition').value;
   const surfaceType = document.getElementById('surfaceType').value;
   const casingType = document.getElementById('casingType').value;
   const isTubeless = document.getElementById('isTubeless').checked;
@@ -168,6 +170,7 @@ document.getElementById('calculateBtn').addEventListener('click', async () => {
         isTubeless,
         surfaceType,
         frameSize,
+        ridingPosition,
       },
     });
 
@@ -317,9 +320,10 @@ async function addSetup() {
   const additional_weight = parseFloat(document.getElementById('newSetupGearWeight').value) || 0;
   const weight_unit = document.getElementById('newSetupWeightUnit').value;
   const frame_size = document.getElementById('newSetupFrameSize').value;
+  const riding_position = document.getElementById('newSetupRidingPosition').value;
   const surface_type = document.getElementById('newSetupSurface').value;
   if (!name || !rider_weight || !bike_weight) { alert('Name, rider weight, and bike weight required'); return; }
-  const result = await api('/setups', { method: 'POST', body: { bike_id: Number(currentBikeId), name, rider_weight, bike_weight, additional_weight, weight_unit, frame_size, surface_type } });
+  const result = await api('/setups', { method: 'POST', body: { bike_id: Number(currentBikeId), name, rider_weight, bike_weight, additional_weight, weight_unit, frame_size, riding_position, surface_type } });
   document.getElementById('newSetupName').value = '';
   document.getElementById('addSetupForm').style.display = 'none';
   await loadSetups(currentBikeId);

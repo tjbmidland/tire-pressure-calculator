@@ -94,9 +94,15 @@
                     <select id="newSetupSurface">
                         <option value="smooth_pavement">Smooth pavement</option>
                         <option value="rough_pavement">Rough pavement</option>
-                        <option value="gravel">Gravel</option>
-                        <option value="mixed_trail">Mixed trail</option>
-                        <option value="singletrack">Singletrack/Mountain</option>
+                        <option value="gravel">Smooth gravel</option>
+                        <option value="rough_gravel">Rough gravel / Large rocks</option>
+                        <option value="singletrack">Singletrack / Mountain</option>
+                    </select>
+                    <label class="form-label">Riding position</label>
+                    <select id="newSetupRidingPosition">
+                        <option value="intermediate">Intermediate</option>
+                        <option value="upright">Upright</option>
+                        <option value="low">Low / Stretched out</option>
                     </select>
                     <button onclick="addSetup()">Add Setup</button>
                 </div>
@@ -167,14 +173,22 @@
                     <select id="surfaceType">
                         <option value="smooth_pavement">Smooth pavement</option>
                         <option value="rough_pavement">Rough pavement</option>
-                        <option value="gravel">Gravel</option>
-                        <option value="mixed_trail">Mixed trail</option>
-                        <option value="singletrack">Singletrack/Mountain</option>
+                        <option value="gravel">Smooth gravel</option>
+                        <option value="rough_gravel">Rough gravel / Large rocks</option>
+                        <option value="singletrack">Singletrack / Mountain</option>
                     </select>
                 </div>
             </div>
 
             <div class="input-row-pair">
+                <div class="input-group">
+                    <label for="ridingPosition">Riding Position</label>
+                    <select id="ridingPosition">
+                        <option value="intermediate">Intermediate</option>
+                        <option value="upright">Upright</option>
+                        <option value="low">Low / Stretched out</option>
+                    </select>
+                </div>
                 <div class="input-group">
                     <label for="casingType">Casing</label>
                     <select id="casingType">

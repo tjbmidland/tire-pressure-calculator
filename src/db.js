@@ -43,7 +43,8 @@ db.exec(`
     additional_weight REAL DEFAULT 0,
     weight_unit TEXT DEFAULT 'lbs' CHECK(weight_unit IN ('kg', 'lbs')),
     frame_size TEXT DEFAULT 'medium' CHECK(frame_size IN ('small', 'medium', 'tall')),
-    surface_type TEXT DEFAULT 'smooth_pavement' CHECK(surface_type IN ('smooth_pavement', 'rough_pavement', 'gravel', 'mixed_trail', 'singletrack')),
+    riding_position TEXT DEFAULT 'intermediate' CHECK(riding_position IN ('upright', 'intermediate', 'low')),
+    surface_type TEXT DEFAULT 'gravel' CHECK(surface_type IN ('smooth_pavement', 'rough_pavement', 'gravel', 'rough_gravel', 'singletrack')),
     notes TEXT,
     created_at TEXT DEFAULT (datetime('now')),
     FOREIGN KEY (bike_id) REFERENCES bikes(id) ON DELETE CASCADE

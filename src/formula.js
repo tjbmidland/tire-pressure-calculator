@@ -4,9 +4,9 @@
  * Where L = per-wheel load in lbs, W = tire width in mm
  *
  * K coefficients calibrated against Rene Herse PRO tool output.
- * K already includes baseline corrections (endurance+ casing, tubeless, smooth gravel).
+ * K already includes baseline corrections (endurance/endurance+ casing, tubeless, smooth gravel).
  * Additional corrections apply only for deviations from that baseline.
- * Weight distribution based on frame size (Rene Herse methodology).
+ * Weight distribution based on frame size and riding position.
  */
 
 // ─── K coefficients (by tire width range) ─────────────────────────
@@ -22,8 +22,7 @@ function getK(tireWidthMm) {
 }
 
 // ─── Correction factors ───────────────────────────────────────────
-// Baseline: endurance+ casing, tubeless, smooth gravel, 23mm rim
-// Corrections adjust for deviations from this baseline
+// Baseline: endurance/endurance+ casing, tubeless, smooth gravel, 23mm rim
 
 function rimWidthCorrection(rimWidthMm) {
   const ref = 23;
@@ -32,10 +31,10 @@ function rimWidthCorrection(rimWidthMm) {
 }
 
 function casingCorrection(casingType) {
-  // Baseline is endurance_plus — stiffer casings need more pressure
+  // Baseline is endurance/endurance+ — stiffer casings need more pressure
   const factors = {
     extralight: 0.95,
-    standard: 1.05,
+    standard: 1.075,
     endurance: 1.0,
     endurance_plus: 1.0,
   };
@@ -48,27 +47,36 @@ function tubeCorrection(isTubeless) {
 }
 
 function surfaceCorrection(surfaceType) {
-  // Baseline is smooth gravel — adjust for other surfaces
+  // Baseline is smooth gravel — rougher terrain needs HIGHER pressure (rim protection)
   const factors = {
-    smooth_pavement: 1.075,
-    rough_pavement: 1.025,
+    smooth_pavement: 0.925,
+    rough_pavement: 0.975,
     gravel: 1.0,
-    mixed_trail: 0.925,
-    singletrack: 0.875,
+    rough_gravel: 1.055,
+    singletrack: 1.10,
   };
   return factors[surfaceType] ?? 1.0;
 }
 
-// ─── Weight distribution by frame size ────────────────────────────
-// Calibrated to Rene Herse PRO tool
+// ─── Weight distribution ──────────────────────────────────────────
+// Combines frame size and riding position effects
 
-function weightDist(frameSize) {
-  const distributions = {
-    small: [0.48, 0.52],
-    medium: [0.467, 0.533],
-    tall: [0.451, 0.549],
-  };
-  return distributions[frameSize] ?? distributions.medium;
+const FRAME_DIST = {
+  small:  [0.48, 0.52],
+  medium: [0.467, 0.533],
+  tall:   [0.451, 0.549],
+};
+
+const POSITION_SHIFT = {
+  upright:       -0.011,  // shifts weight rearward
+  intermediate:  0.0,     // baseline
+  low:           0.011,   // shifts weight forward
+};
+
+function weightDist(frameSize, ridingPosition) {
+  const [baseFront, baseRear] = FRAME_DIST[frameSize] ?? FRAME_DIST.medium;
+  const shift = POSITION_SHIFT[ridingPosition] ?? 0.0;
+  return [baseFront + shift, baseRear - shift];
 }
 
 // ─── Unit conversions ─────────────────────────────────────────────
@@ -100,6 +108,7 @@ function calculatePressure(params) {
     isTubeless = true,
     surfaceType = 'gravel',
     frameSize = 'medium',
+    ridingPosition = 'intermediate',
   } = params;
 
   const tireWidthMm = tireWidthUnit === 'in' ? inToMm(rawTireWidth) : rawTireWidth;
@@ -111,7 +120,7 @@ function calculatePressure(params) {
     totalLbs = riderWeight + bikeWeight + additionalWeight;
   }
 
-  const [frontPct, rearPct] = weightDist(frameSize);
+  const [frontPct, rearPct] = weightDist(frameSize, ridingPosition);
   const frontLoadLbs = totalLbs * frontPct;
   const rearLoadLbs = totalLbs * rearPct;
 
