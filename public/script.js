@@ -39,7 +39,7 @@ async function loadBikes(riderId) {
   const sel = document.getElementById('bikeSelect');
   sel.disabled = !riderId;
   sel.innerHTML = '<option value="">Bike...</option>' +
-    bikes.map(b => `<option value="${b.id}">${b.name} (${b.tire_width_mm}mm)</option>`).join('');
+    bikes.map(b => `<option value="${b.id}">${b.name} (${b.tire_width}${b.tire_width_unit})</option>`).join('');
   document.getElementById('bikeRiderLabel').textContent =
     riderId ? `for ${riders.find(r => r.id == riderId)?.name || ''}` : '';
   renderBikeList();
@@ -96,7 +96,8 @@ document.getElementById('bikeSelect').addEventListener('change', async (e) => {
   if (currentBikeId) {
     const bike = bikes.find(b => b.id == currentBikeId);
     if (bike) {
-      document.getElementById('tireWidth').value = bike.tire_width_mm;
+      document.getElementById('tireWidth').value = bike.tire_width;
+      document.getElementById('tireUnit').value = bike.tire_width_unit;
       document.getElementById('rimWidth').value = bike.rim_width_mm;
       document.getElementById('casingType').value = bike.casing_type;
       document.getElementById('isTubeless').checked = !!bike.is_tubeless;
@@ -110,11 +111,15 @@ document.getElementById('setupSelect').addEventListener('change', (e) => {
   if (currentSetupId) {
     const setup = setups.find(s => s.id == currentSetupId);
     if (setup) {
-      document.getElementById('riderWeight').value = setup.rider_weight_kg;
-      document.getElementById('bikeWeight').value = setup.bike_weight_kg;
-      document.getElementById('gearWeight').value = setup.additional_weight_kg;
+      document.getElementById('riderWeight').value = setup.rider_weight;
+      document.getElementById('bikeWeight').value = setup.bike_weight;
+      document.getElementById('gearWeight').value = setup.additional_weight;
+      document.getElementById('weightUnit').value = setup.weight_unit;
       document.getElementById('bikeType').value = setup.bike_type;
       document.getElementById('surfaceType').value = setup.surface_type;
+      // Update weight unit labels
+      document.getElementById('bikeWeightUnit').textContent = setup.weight_unit;
+      document.getElementById('gearWeightUnit').textContent = setup.weight_unit;
     }
   }
   document.getElementById('saveBtn').style.display = currentSetupId ? 'block' : 'none';
@@ -149,17 +154,17 @@ document.getElementById('calculateBtn').addEventListener('click', async () => {
     const result = await api('/pressures/calculate', {
       method: 'POST',
       body: {
-        riderWeightKg: riderWeight,
-        bikeWeightKg: bikeWeight,
-        additionalWeightKg: gearWeight,
-        tireWidthMm: tireWidth,
+        riderWeight,
+        bikeWeight,
+        additionalWeight: gearWeight,
+        tireWidth,
         tireWidthUnit: tireUnit,
+        weightUnit,
         rimWidthMm: rimWidth,
         casingType,
         isTubeless,
         surfaceType,
         bikeType,
-        weightUnit,
       },
     });
 
@@ -253,7 +258,7 @@ function renderBikeList() {
   const el = document.getElementById('bikeList');
   el.innerHTML = bikes.map(b => `
     <div class="item-row">
-      <span>${b.name} — ${b.tire_width_mm}mm, ${b.rim_width_mm}mm rim, ${b.casing_type}${b.is_tubeless ? ', tubeless' : ''}</span>
+      <span>${b.name} — ${b.tire_width}${b.tire_width_unit}, ${b.rim_width_mm}mm rim, ${b.casing_type}${b.is_tubeless ? ', tubeless' : ''}</span>
       <button class="btn-link btn-delete" onclick="deleteBike(${b.id})">×</button>
     </div>
   `).join('');
@@ -262,12 +267,13 @@ function renderBikeList() {
 async function addBike() {
   if (!currentRiderId) { alert('Select a rider first'); return; }
   const name = document.getElementById('newBikeName').value.trim();
-  const tire_width_mm = parseFloat(document.getElementById('newBikeTireWidth').value);
+  const tire_width = parseFloat(document.getElementById('newBikeTireWidth').value);
+  const tire_width_unit = document.getElementById('newBikeTireUnit').value;
   const rim_width_mm = parseFloat(document.getElementById('newBikeRimWidth').value) || 18;
   const casing_type = document.getElementById('newBikeCasing').value;
   const is_tubeless = document.getElementById('newBikeTubeless').checked ? 1 : 0;
-  if (!name || !tire_width_mm) { alert('Name and tire width required'); return; }
-  await api('/bikes', { method: 'POST', body: { rider_id: Number(currentRiderId), name, tire_width_mm, rim_width_mm, casing_type, is_tubeless } });
+  if (!name || !tire_width) { alert('Name and tire width required'); return; }
+  await api('/bikes', { method: 'POST', body: { rider_id: Number(currentRiderId), name, tire_width, tire_width_unit, rim_width_mm, casing_type, is_tubeless } });
   document.getElementById('newBikeName').value = '';
   document.getElementById('newBikeTireWidth').value = '';
   document.getElementById('addBikeForm').style.display = 'none';
@@ -288,7 +294,7 @@ function renderSetupList() {
   const el = document.getElementById('setupList');
   el.innerHTML = setups.map(s => `
     <div class="item-row">
-      <span>${s.name} — ${s.rider_weight_kg}kg rider, ${s.bike_weight_kg}kg bike${s.additional_weight_kg ? ', +' + s.additional_weight_kg + 'kg gear' : ''} (${s.surface_type})</span>
+      <span>${s.name} — ${s.rider_weight}${s.weight_unit} rider, ${s.bike_weight}${s.weight_unit} bike${s.additional_weight ? ', +' + s.additional_weight + s.weight_unit + ' gear' : ''} (${s.surface_type})</span>
       <button class="btn-link btn-delete" onclick="deleteSetup(${s.id})">×</button>
     </div>
   `).join('');
@@ -297,13 +303,14 @@ function renderSetupList() {
 async function addSetup() {
   if (!currentBikeId) { alert('Select a bike first'); return; }
   const name = document.getElementById('newSetupName').value.trim();
-  const rider_weight_kg = parseFloat(document.getElementById('newSetupRiderWeight').value);
-  const bike_weight_kg = parseFloat(document.getElementById('newSetupBikeWeight').value);
-  const additional_weight_kg = parseFloat(document.getElementById('newSetupGearWeight').value) || 0;
+  const rider_weight = parseFloat(document.getElementById('newSetupRiderWeight').value);
+  const bike_weight = parseFloat(document.getElementById('newSetupBikeWeight').value);
+  const additional_weight = parseFloat(document.getElementById('newSetupGearWeight').value) || 0;
+  const weight_unit = document.getElementById('newSetupWeightUnit').value;
   const bike_type = document.getElementById('newSetupBikeType').value;
   const surface_type = document.getElementById('newSetupSurface').value;
-  if (!name || !rider_weight_kg || !bike_weight_kg) { alert('Name, rider weight, and bike weight required'); return; }
-  await api('/setups', { method: 'POST', body: { bike_id: Number(currentBikeId), name, rider_weight_kg, bike_weight_kg, additional_weight_kg, bike_type, surface_type } });
+  if (!name || !rider_weight || !bike_weight) { alert('Name, rider weight, and bike weight required'); return; }
+  await api('/setups', { method: 'POST', body: { bike_id: Number(currentBikeId), name, rider_weight, bike_weight, additional_weight, weight_unit, bike_type, surface_type } });
   document.getElementById('newSetupName').value = '';
   document.getElementById('addSetupForm').style.display = 'none';
   await loadSetups(currentBikeId);

@@ -27,7 +27,7 @@
             <button id="manageBtn" class="btn-link" onclick="toggleManage()">Manage</button>
         </div>
 
-        <!-- Management panel (hidden by default) -->
+        <!-- Management panel -->
         <div id="managePanel" class="manage-panel" style="display: none;">
             <div class="manage-section">
                 <h3>Riders</h3>
@@ -42,15 +42,24 @@
                 <div id="bikeList" class="item-list"></div>
                 <div class="add-form" id="addBikeForm" style="display: none;">
                     <input type="text" id="newBikeName" placeholder="Bike name">
-                    <input type="number" id="newBikeTireWidth" placeholder="Tire width (mm)" step="0.5">
+                    <div class="input-row">
+                        <input type="number" id="newBikeTireWidth" placeholder="Tire width" step="0.5">
+                        <select id="newBikeTireUnit">
+                            <option value="mm">mm</option>
+                            <option value="in">inches</option>
+                        </select>
+                    </div>
                     <input type="number" id="newBikeRimWidth" placeholder="Rim width (mm)" step="0.5" value="18">
                     <select id="newBikeCasing">
-                        <option value="standard">Standard</option>
-                        <option value="extralight">Extralight</option>
-                        <option value="endurance">Endurance</option>
-                        <option value="endurance_plus">Endurance Plus</option>
+                        <option value="standard">Standard casing</option>
+                        <option value="extralight">Extralight casing</option>
+                        <option value="endurance">Endurance casing</option>
+                        <option value="endurance_plus">Endurance+ casing</option>
                     </select>
-                    <label><input type="checkbox" id="newBikeTubeless" checked> Tubeless</label>
+                    <label class="toggle-label">
+                        <input type="checkbox" id="newBikeTubeless" checked>
+                        <span>Tubeless</span>
+                    </label>
                     <button onclick="addBike()">Add Bike</button>
                 </div>
                 <button class="btn-link" onclick="toggleAddBike()">+ New Bike</button>
@@ -60,22 +69,27 @@
                 <div id="setupList" class="item-list"></div>
                 <div class="add-form" id="addSetupForm" style="display: none;">
                     <input type="text" id="newSetupName" placeholder="Setup name (e.g. Normal, Bikepacking)">
-                    <input type="number" id="newSetupRiderWeight" placeholder="Rider weight (lbs)" step="0.5">
-                    <input type="number" id="newSetupBikeWeight" placeholder="Bike weight (lbs)" step="0.1">
-                    <input type="number" id="newSetupGearWeight" placeholder="Gear/bags weight (lbs)" step="0.1" value="0">
+                    <div class="input-row">
+                        <input type="number" id="newSetupRiderWeight" placeholder="Rider weight" step="0.5">
+                        <select id="newSetupWeightUnit">
+                            <option value="lbs">lbs</option>
+                            <option value="kg">kg</option>
+                        </select>
+                    </div>
+                    <input type="number" id="newSetupBikeWeight" placeholder="Bike weight" step="0.1">
+                    <input type="number" id="newSetupGearWeight" placeholder="Gear/bags weight" step="0.1" value="0">
                     <select id="newSetupBikeType">
                         <option value="gravel">Gravel</option>
                         <option value="road">Road</option>
-                        <option value="touring">Touring</option>
-                        <option value="city">City</option>
+                        <option value="bikepacking">Bikepacking</option>
                         <option value="mountain">Mountain</option>
                     </select>
                     <select id="newSetupSurface">
-                        <option value="smooth_asphalt">Smooth asphalt</option>
-                        <option value="rough_asphalt">Rough asphalt</option>
-                        <option value="smooth_gravel">Smooth gravel</option>
-                        <option value="coarse_gravel">Coarse gravel</option>
-                        <option value="rough_gravel">Rough gravel</option>
+                        <option value="smooth_pavement">Smooth pavement</option>
+                        <option value="rough_pavement">Rough pavement</option>
+                        <option value="gravel_road">Gravel road</option>
+                        <option value="mixed_trail">Mixed trail</option>
+                        <option value="singletrack">Singletrack</option>
                     </select>
                     <button onclick="addSetup()">Add Setup</button>
                 </div>
@@ -138,19 +152,18 @@
                     <select id="bikeType">
                         <option value="gravel">Gravel</option>
                         <option value="road">Road</option>
-                        <option value="touring">Touring</option>
-                        <option value="city">City</option>
+                        <option value="bikepacking">Bikepacking</option>
                         <option value="mountain">Mountain</option>
                     </select>
                 </div>
                 <div class="input-group">
                     <label for="surfaceType">Surface</label>
                     <select id="surfaceType">
-                        <option value="smooth_asphalt">Smooth asphalt</option>
-                        <option value="rough_asphalt">Rough asphalt</option>
-                        <option value="smooth_gravel">Smooth gravel</option>
-                        <option value="coarse_gravel">Coarse gravel</option>
-                        <option value="rough_gravel">Rough gravel</option>
+                        <option value="smooth_pavement">Smooth pavement</option>
+                        <option value="rough_pavement">Rough pavement</option>
+                        <option value="gravel_road">Gravel road</option>
+                        <option value="mixed_trail">Mixed trail</option>
+                        <option value="singletrack">Singletrack</option>
                     </select>
                 </div>
             </div>
@@ -162,12 +175,13 @@
                         <option value="standard">Standard</option>
                         <option value="extralight">Extralight</option>
                         <option value="endurance">Endurance</option>
-                        <option value="endurance_plus">Endurance Plus</option>
+                        <option value="endurance_plus">Endurance+</option>
                     </select>
                 </div>
                 <div class="input-group">
-                    <label class="checkbox-label">
-                        <input type="checkbox" id="isTubeless" checked> Tubeless
+                    <label class="toggle-label">
+                        <input type="checkbox" id="isTubeless" checked>
+                        <span>Tubeless</span>
                     </label>
                 </div>
             </div>

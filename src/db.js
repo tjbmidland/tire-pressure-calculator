@@ -5,18 +5,13 @@ const fs = require('fs');
 const DATA_DIR = process.env.DATA_DIR || path.join(__dirname, '..', 'data');
 const DB_PATH = path.join(DATA_DIR, 'tirepressure.db');
 
-// Ensure data directory exists
 if (!fs.existsSync(DATA_DIR)) {
   fs.mkdirSync(DATA_DIR, { recursive: true });
 }
 
 const db = new Database(DB_PATH);
-
-// Enable WAL mode for better concurrent read performance
 db.pragma('journal_mode = WAL');
 db.pragma('foreign_keys = ON');
-
-// ─── Schema ───────────────────────────────────────────────────────
 
 db.exec(`
   CREATE TABLE IF NOT EXISTS riders (
@@ -29,7 +24,8 @@ db.exec(`
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     rider_id INTEGER NOT NULL,
     name TEXT NOT NULL,
-    tire_width_mm REAL NOT NULL,
+    tire_width REAL NOT NULL,
+    tire_width_unit TEXT DEFAULT 'mm' CHECK(tire_width_unit IN ('mm', 'in')),
     rim_width_mm REAL DEFAULT 18,
     casing_type TEXT DEFAULT 'standard' CHECK(casing_type IN ('extralight', 'standard', 'endurance', 'endurance_plus')),
     is_tubeless INTEGER DEFAULT 1,
@@ -42,11 +38,12 @@ db.exec(`
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     bike_id INTEGER NOT NULL,
     name TEXT NOT NULL,
-    rider_weight_kg REAL NOT NULL,
-    bike_weight_kg REAL NOT NULL,
-    additional_weight_kg REAL DEFAULT 0,
-    bike_type TEXT DEFAULT 'gravel' CHECK(bike_type IN ('road', 'gravel', 'touring', 'city', 'mountain')),
-    surface_type TEXT DEFAULT 'smooth_asphalt' CHECK(surface_type IN ('smooth_asphalt', 'rough_asphalt', 'smooth_gravel', 'coarse_gravel', 'rough_gravel')),
+    rider_weight REAL NOT NULL,
+    bike_weight REAL NOT NULL,
+    additional_weight REAL DEFAULT 0,
+    weight_unit TEXT DEFAULT 'lbs' CHECK(weight_unit IN ('kg', 'lbs')),
+    bike_type TEXT DEFAULT 'gravel' CHECK(bike_type IN ('road', 'gravel', 'bikepacking', 'mountain')),
+    surface_type TEXT DEFAULT 'smooth_pavement' CHECK(surface_type IN ('smooth_pavement', 'rough_pavement', 'gravel_road', 'mixed_trail', 'singletrack')),
     notes TEXT,
     created_at TEXT DEFAULT (datetime('now')),
     FOREIGN KEY (bike_id) REFERENCES bikes(id) ON DELETE CASCADE
