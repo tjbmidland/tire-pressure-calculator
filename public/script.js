@@ -292,7 +292,7 @@ async function addBike() {
   const casing_type = document.getElementById('newBikeCasing').value;
   const is_tubeless = document.getElementById('newBikeTubeless').checked ? 1 : 0;
   if (!name || !front_tire_width) { alert('Name and front tire width required'); return; }
-  const result = await api('/bikes', { method: 'POST', body: { rider_id: Number(currentRiderId), name, front_tire_width, rear_tire_width, tire_width_unit, rim_width_mm, rim_type: 'hooked', front_casing: casing_type, rear_casing: null, is_tubeless } });
+  const result = await api('/bikes', { method: 'POST', body: { rider_id: Number(currentRiderId), name, front_tire_width, rear_tire_width, tire_width_unit, rim_width_mm, casing_type, is_tubeless } });
   document.getElementById('newBikeName').value = '';
   document.getElementById('newBikeFrontTireWidth').value = '';
   document.getElementById('newBikeRearTireWidth').value = '';
