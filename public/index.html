@@ -20,8 +20,23 @@
             <p class="subtitle">Based on Rene Herse v3 model</p>
         </header>
 
-        <!-- Profile selector -->
-        <div class="profile-bar">
+        <!-- Onboarding / Quick Start -->
+        <div id="onboarding" class="onboarding">
+            <div class="onboarding-options">
+                <button class="onboarding-btn" onclick="showManage('rider')">
+                    <span class="onboarding-label">New User</span>
+                    <span class="onboarding-desc">Create a profile to save bikes & setups</span>
+                </button>
+                <div class="onboarding-divider">or</div>
+                <button class="onboarding-btn onboarding-btn-secondary" onclick="skipOnboarding()">
+                    <span class="onboarding-label">Quick Calculate</span>
+                    <span class="onboarding-desc">Use the tool without saving</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- Profile selector (hidden initially) -->
+        <div id="profileBar" class="profile-bar" style="display: none;">
             <div class="profile-selects">
                 <select id="riderSelect"><option value="">Rider</option></select>
                 <select id="bikeSelect" disabled><option value="">Bike</option></select>
@@ -127,7 +142,7 @@
         </div>
 
         <!-- Calculator -->
-        <div class="calculator">
+        <div id="calculator" class="calculator" style="display: none;">
             <div class="input-row-pair">
                 <div class="input-group">
                     <label for="frontTireWidth">Front Tire Width</label>

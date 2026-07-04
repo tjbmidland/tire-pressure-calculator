@@ -7,6 +7,7 @@ let currentRiderId = null;
 let currentBikeId = null;
 let currentSetupId = null;
 let lastResult = null;
+let onboarded = false;
 
 // ─── API helpers ───────────────────────────────────────────────────
 
@@ -356,4 +357,27 @@ async function deleteSetup(id) {
 
 // ─── Init ──────────────────────────────────────────────────────────
 
-loadRiders();
+function showManage(section) {
+  document.getElementById('onboarding').style.display = 'none';
+  document.getElementById('profileBar').style.display = 'flex';
+  document.getElementById('calculator').style.display = 'block';
+  onboarded = true;
+  loadRiders().then(() => toggleManage());
+}
+
+function skipOnboarding() {
+  document.getElementById('onboarding').style.display = 'none';
+  document.getElementById('profileBar').style.display = 'flex';
+  document.getElementById('calculator').style.display = 'block';
+  onboarded = true;
+  loadRiders();
+}
+
+// Check if user has existing data
+api('/riders').then(r => {
+  if (r.length > 0) {
+    // Existing user — skip onboarding
+    skipOnboarding();
+  }
+  // Otherwise show onboarding
+});
