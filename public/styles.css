@@ -1,4 +1,4 @@
-/* ─── NUCALORIC DESIGN SYSTEM ───────────────────────────────────── */
+/* ─── TYRPRSHR DESIGN SYSTEM ────────────────────────────────────── */
 /* Marathon × The Designers Republic × Industrial Logistics */
 
 :root {
@@ -16,6 +16,10 @@
     --red-glow: rgba(255, 13, 26, 0.3);
     --purple: #5200FF;
     --purple-glow: rgba(82, 0, 255, 0.3);
+    --magenta: #EA027E;
+    --magenta-dim: rgba(234, 2, 126, 0.72);
+    --magenta-glow: rgba(234, 2, 126, 0.34);
+    --magenta-faint: rgba(234, 2, 126, 0.08);
 
     /* Neutrals */
     --black: #000;
@@ -80,8 +84,9 @@ html {
 body {
     font-family: 'Chakra Petch', 'Helvetica Neue', Arial, sans-serif;
     background:
-        radial-gradient(circle at 18% 8%, rgba(194, 254, 11, 0.14), transparent 24rem),
-        radial-gradient(circle at 82% 18%, rgba(1, 255, 255, 0.1), transparent 22rem),
+        radial-gradient(circle at 16% 8%, rgba(234, 2, 126, 0.18), transparent 22rem),
+        radial-gradient(circle at 18% 34%, rgba(194, 254, 11, 0.1), transparent 24rem),
+        radial-gradient(circle at 82% 18%, rgba(1, 255, 255, 0.08), transparent 22rem),
         linear-gradient(145deg, #000 0%, #050608 36%, #0a0c12 72%, #000 100%);
     color: var(--gray-200);
     min-height: 100vh;
@@ -175,8 +180,8 @@ header::after {
     transform: translateX(-50%);
     width: 200px;
     height: 1px;
-    background: linear-gradient(90deg, transparent, var(--acid), var(--cyan), var(--acid), transparent);
-    box-shadow: 0 0 16px var(--acid-glow), 0 0 40px var(--acid-faint);
+    background: linear-gradient(90deg, transparent, var(--magenta), var(--acid), var(--cyan), var(--magenta), transparent);
+    box-shadow: 0 0 16px var(--magenta-glow), 0 0 40px var(--acid-faint);
 }
 
 .header-meta {
@@ -208,29 +213,29 @@ header::after {
     width: min(100%, 680px);
     margin: 0 auto;
     padding: var(--s3);
-    background: linear-gradient(90deg, #fff 0 62px, #ea027e 62px 100%);
+    background: linear-gradient(90deg, var(--white) 0 62px, var(--magenta) 62px 100%);
     color: var(--black);
     text-transform: uppercase;
     position: relative;
-    box-shadow: 10px 10px 0 rgba(234, 2, 126, 0.28), -5px 0 0 rgba(1, 255, 255, 0.22);
+    box-shadow: 10px 10px 0 var(--magenta-faint), -5px 0 0 rgba(1, 255, 255, 0.22), 0 0 34px var(--magenta-glow);
 }
 
 .site-title::before {
     content: '';
     position: absolute;
     inset: -8px;
-    border: 2px solid #ea027e;
+    border: 2px solid var(--magenta);
     pointer-events: none;
 }
 
-.nucaloric-badge {
+.brand-badge {
     grid-row: 1 / 4;
     display: grid;
     place-items: center;
     width: 42px;
     height: 74px;
-    background: #ea027e;
-    color: #fff;
+    background: var(--magenta);
+    color: var(--white);
     font-family: 'Orbitron', sans-serif;
     font-size: 0.8rem;
     font-weight: 900;
@@ -248,13 +253,13 @@ header::after {
     font-size: var(--xs);
     font-weight: 700;
     letter-spacing: 0.24em;
-    color: #fff;
+    color: var(--white);
     text-shadow: none;
 }
 
 .title-kicker {
     color: var(--black);
-    background: #fff;
+    background: var(--white);
     padding: 0 var(--s2);
     width: max-content;
 }
@@ -263,8 +268,8 @@ header::after {
     display: block;
     width: 100%;
     aspect-ratio: 750 / 116;
-    background: url('/assets/patterns/nucaloric-pressure.svg') left center / contain no-repeat;
-    filter: drop-shadow(4px 0 0 rgba(255, 255, 255, 0.24)) drop-shadow(0 0 22px rgba(234, 2, 126, 0.28));
+    background: url('/assets/patterns/tyrprshr-pressure.svg') left center / contain no-repeat;
+    filter: drop-shadow(4px 0 0 rgba(255, 255, 255, 0.24)) drop-shadow(0 0 22px var(--magenta-glow));
     position: relative;
 }
 
@@ -279,14 +284,14 @@ header::after {
     inset: 14% 0 auto auto;
     width: 22%;
     height: 8px;
-    background: repeating-linear-gradient(90deg, #fff 0 10px, transparent 10px 16px);
+    background: repeating-linear-gradient(90deg, var(--white) 0 10px, transparent 10px 16px);
     opacity: 0.65;
 }
 
 .matrix-word::after {
     inset: auto 0 -10px 52%;
     height: 8px;
-    background: repeating-linear-gradient(90deg, #fff 0 8px, transparent 8px 15px, var(--cyan) 15px 18px, transparent 18px 24px);
+    background: repeating-linear-gradient(90deg, var(--white) 0 8px, transparent 8px 15px, var(--cyan) 15px 18px, transparent 18px 24px);
     opacity: 0.75;
 }
 
@@ -298,7 +303,7 @@ h2 {
     text-transform: uppercase;
     color: var(--acid);
     line-height: 1.4;
-    text-shadow: 0 0 10px var(--acid-glow);
+    text-shadow: 2px 0 0 var(--magenta), 0 0 10px var(--acid-glow);
 }
 
 h3 {
@@ -676,7 +681,7 @@ label {
     position: absolute;
     inset: 0 0 0 auto;
     width: 18px;
-    background: var(--red);
+    background: var(--magenta);
     transform: translateX(100%);
     transition: transform var(--normal);
 }
@@ -755,7 +760,7 @@ label {
     position: absolute;
     inset: 0 0 0 auto;
     width: 32px;
-    background: repeating-linear-gradient(135deg, var(--red) 0 6px, transparent 6px 10px);
+    background: repeating-linear-gradient(135deg, var(--magenta) 0 6px, transparent 6px 10px);
     transform: translateX(100%);
     transition: transform var(--normal);
 }
@@ -886,12 +891,13 @@ label {
 
 .calculator {
     background:
-        linear-gradient(180deg, rgba(194, 254, 11, 0.04), transparent 120px),
+        linear-gradient(180deg, var(--magenta-faint), transparent 105px),
+        linear-gradient(90deg, rgba(194, 254, 11, 0.035), transparent 45%),
         var(--dark-800);
     border: 1px solid var(--dark-400);
     padding: var(--s6);
     position: relative;
-    box-shadow: 0 24px 80px rgba(0, 0, 0, 0.5), inset 0 0 0 1px rgba(194, 254, 11, 0.03);
+    box-shadow: 0 24px 80px rgba(0, 0, 0, 0.5), 0 0 34px var(--magenta-faint), inset 0 0 0 1px rgba(194, 254, 11, 0.03);
 }
 
 .calculator::before {
@@ -902,11 +908,12 @@ label {
     right: 0;
     height: 2px;
     background: linear-gradient(90deg,
-        var(--acid) 0%, var(--acid) 40%,
-        var(--cyan) 40%, var(--cyan) 65%,
-        var(--red) 65%, var(--red) 100%
+        var(--magenta) 0%, var(--magenta) 28%,
+        var(--acid) 28%, var(--acid) 62%,
+        var(--cyan) 62%, var(--cyan) 82%,
+        var(--magenta) 82%, var(--magenta) 100%
     );
-    box-shadow: 0 0 12px var(--acid-glow);
+    box-shadow: 0 0 12px var(--magenta-glow), 0 0 18px var(--acid-glow);
 }
 
 .calculator::after {
@@ -916,8 +923,9 @@ label {
     right: var(--s4);
     font-family: 'Space Mono', monospace;
     font-size: var(--xs);
-    color: var(--dark-300);
+    color: var(--magenta);
     letter-spacing: 0.3em;
+    opacity: 0.62;
 }
 
 .calculator-header {
@@ -935,7 +943,7 @@ label {
     font-weight: 700;
     text-transform: uppercase;
     letter-spacing: 0.4em;
-    color: var(--gray-400);
+    color: var(--magenta);
 }
 
 .calculator-serial {
@@ -1093,14 +1101,14 @@ label {
     right: 0;
     width: 60px;
     height: 100%;
-    background: var(--red);
+    background: var(--magenta);
     opacity: 0;
     transition: opacity var(--normal);
 }
 
 .calculate-btn:hover {
     background: var(--white);
-    box-shadow: 0 0 30px var(--acid-glow), 0 0 60px var(--acid-faint);
+    box-shadow: 0 0 30px var(--acid-glow), 0 0 60px var(--magenta-faint);
     transform: translateY(-2px);
 }
 
@@ -1129,8 +1137,8 @@ label {
     left: 0;
     width: 100px;
     height: 1px;
-    background: var(--acid);
-    box-shadow: 0 0 14px var(--acid-glow);
+    background: linear-gradient(90deg, var(--magenta), var(--acid));
+    box-shadow: 0 0 14px var(--magenta-glow), 0 0 18px var(--acid-glow);
 }
 
 .results-header {
@@ -1143,7 +1151,7 @@ label {
 .results-serial {
     font-family: 'Space Mono', monospace;
     font-size: var(--xs);
-    color: var(--dark-300);
+    color: var(--magenta);
     letter-spacing: 0.2em;
 }
 
@@ -1154,7 +1162,9 @@ label {
 }
 
 .pressure-card {
-    background: var(--dark-700);
+    background:
+        linear-gradient(180deg, var(--magenta-faint), transparent 70px),
+        var(--dark-700);
     border: 1px solid var(--dark-400);
     padding: var(--s5);
     position: relative;
@@ -1168,8 +1178,8 @@ label {
     left: 0;
     width: 3px;
     height: 100%;
-    background: var(--acid);
-    box-shadow: 0 0 10px var(--acid-glow);
+    background: linear-gradient(180deg, var(--magenta), var(--acid));
+    box-shadow: 0 0 10px var(--magenta-glow), 0 0 10px var(--acid-glow);
 }
 
 .pressure-card::after {
@@ -1184,8 +1194,8 @@ label {
 }
 
 .pressure-card:hover {
-    border-color: var(--acid);
-    box-shadow: 0 0 20px var(--acid-glow), inset 0 0 40px var(--acid-faint);
+    border-color: var(--magenta);
+    box-shadow: 0 0 20px var(--magenta-glow), inset 0 0 40px var(--acid-faint);
     transform: translateY(-3px);
 }
 
@@ -1195,7 +1205,7 @@ label {
     font-weight: 700;
     text-transform: uppercase;
     letter-spacing: 0.4em;
-    color: var(--gray-400);
+    color: var(--magenta);
     margin-bottom: var(--s3);
 }
 
@@ -1210,7 +1220,7 @@ label {
     font-family: 'Orbitron', sans-serif;
     font-size: var(--6xl);
     font-weight: 900;
-    background: linear-gradient(180deg, var(--white), var(--gray-300) 32%, var(--acid) 48%, var(--white) 54%, var(--gray-300) 72%, var(--white));
+    background: linear-gradient(180deg, var(--white), var(--gray-300) 30%, var(--magenta) 44%, var(--white) 52%, var(--acid) 70%, var(--white));
     -webkit-background-clip: text;
     background-clip: text;
     color: transparent;
@@ -1279,7 +1289,7 @@ label {
 }
 
 .site-title:hover .matrix-word {
-    filter: drop-shadow(6px 0 0 rgba(255, 255, 255, 0.28)) drop-shadow(0 0 30px rgba(234, 2, 126, 0.38));
+    filter: drop-shadow(6px 0 0 rgba(255, 255, 255, 0.28)) drop-shadow(0 0 30px var(--magenta-glow));
 }
 
 .pressure-card:hover .value {
@@ -1296,10 +1306,10 @@ label {
     .site-title {
         grid-template-columns: 1fr;
         padding: var(--s3);
-        background: #ea027e;
+        background: var(--magenta);
     }
 
-    .nucaloric-badge {
+    .brand-badge {
         grid-row: auto;
         width: 100%;
         height: 28px;
@@ -1317,7 +1327,7 @@ label {
     }
 
     .matrix-word {
-        filter: drop-shadow(3px 0 0 rgba(255, 255, 255, 0.22)) drop-shadow(0 0 18px rgba(234, 2, 126, 0.26));
+        filter: drop-shadow(3px 0 0 rgba(255, 255, 255, 0.22)) drop-shadow(0 0 18px var(--magenta-glow));
     }
 
     .profile-selects {

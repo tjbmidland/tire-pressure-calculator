@@ -1,4 +1,4 @@
-const CACHE_NAME = 'tire-pressure-v6';
+const CACHE_NAME = 'tire-pressure-v7';
 const STATIC_ASSETS = [
   '/styles.css',
   '/script.js',
@@ -6,8 +6,7 @@ const STATIC_ASSETS = [
   '/assets/patterns/dither.svg',
   '/assets/patterns/lattice.svg',
   '/assets/patterns/registration.svg',
-  '/assets/patterns/wordmark.svg',
-  '/assets/patterns/nucaloric-pressure.svg',
+  '/assets/patterns/tyrprshr-pressure.svg',
 ];
 
 self.addEventListener('install', event => {
