@@ -53,7 +53,10 @@
                 <select id="bikeSelect" aria-label="Select bike" disabled><option value="">Bike</option></select>
                 <select id="setupSelect" aria-label="Select setup" disabled><option value="">Setup</option></select>
             </div>
-            <button id="manageBtn" class="btn-link" onclick="toggleManage()" aria-label="Open management panel">Manage</button>
+            <div class="profile-actions">
+                <button id="savedBtn" class="btn-link" onclick="toggleSavedPanel()" aria-label="Open saved pressures">Saved</button>
+                <button id="manageBtn" class="btn-link" onclick="toggleManage()" aria-label="Open management panel">Manage</button>
+            </div>
         </div>
 
         <!-- Management panel -->
@@ -72,140 +75,17 @@
                 <h3>Bikes <span id="bikeRiderLabel"></span></h3>
                 <div id="bikeGuidance" class="manage-guidance">Select a rider above to manage their bikes</div>
                 <div id="bikeList" class="item-list" aria-label="Bike list"></div>
-                <div id="bikeEmpty" class="empty-state" style="display: none;">No bikes yet — add one below</div>
-                <div class="add-form" id="addBikeForm" style="display: none;">
-                    <input type="text" id="newBikeName" placeholder="Bike name" aria-label="New bike name">
-                    <div class="input-row-pair">
-                        <div>
-                            <label class="form-label" for="newBikeFrontTireWidth">Front tire width</label>
-                            <input type="number" id="newBikeFrontTireWidth" placeholder="Width" step="0.5" aria-label="Front tire width">
-                        </div>
-                        <div>
-                            <label class="form-label" for="newBikeRearTireWidth">Rear tire (blank = same)</label>
-                            <input type="number" id="newBikeRearTireWidth" placeholder="Width" step="0.5" aria-label="Rear tire width">
-                        </div>
-                    </div>
-                    <div class="input-row-pair">
-                        <div>
-                            <label class="form-label" for="newBikeTireUnit">Tire width unit</label>
-                            <select id="newBikeTireUnit" aria-label="Tire width unit">
-                                <option value="mm">mm</option>
-                                <option value="in">inches</option>
-                            </select>
-                        </div>
-                        <div>
-                            <label class="form-label" for="newBikeRimWidth">Rim internal width (mm)</label>
-                            <input type="number" id="newBikeRimWidth" placeholder="23" step="0.5" value="23" aria-label="Rim internal width">
-                        </div>
-                    </div>
-                    <div class="collapsible-section collapsible-section--collapsed" id="newBikeDetailsSection">
-                        <button type="button" class="collapsible-trigger" onclick="toggleCollapsible('newBikeDetailsSection')" aria-expanded="false" aria-controls="newBikeDetailsContent">
-                            Casing & Tubeless
-                        </button>
-                        <div class="collapsible-content" id="newBikeDetailsContent">
-                            <label class="form-label" for="newBikeCasing">Casing</label>
-                            <select id="newBikeCasing" aria-label="Casing type">
-                                <option value="endurance">Endurance</option>
-                                <option value="endurance_plus">Endurance+</option>
-                                <option value="standard">Standard</option>
-                                <option value="extralight">Extralight/Race</option>
-                            </select>
-                            <label class="toggle-label">
-                                <input type="checkbox" id="newBikeTubeless" checked>
-                                <span>Tubeless</span>
-                            </label>
-                        </div>
-                    </div>
-                    <button onclick="addBike()">Add Bike</button>
-                </div>
-                <button id="addBikeToggle" class="btn-link" onclick="toggleAddBike()">+ New Bike</button>
+                <div id="bikeEmpty" class="empty-state" style="display: none;">No bikes yet</div>
+                <div class="manage-hint">Set tire specs in the calculator, then use <strong>Save as new bike</strong>.</div>
+                <button class="btn-link" onclick="scrollToCalculator()">+ New bike (in calculator)</button>
             </div>
             <div class="manage-section">
                 <h3>Setups <span id="setupBikeLabel"></span></h3>
                 <div id="setupGuidance" class="manage-guidance">Select a bike above to manage its setups</div>
                 <div id="setupList" class="item-list" aria-label="Setup list"></div>
-                <div id="setupEmpty" class="empty-state" style="display: none;">No setups yet — add one below</div>
-                <div class="add-form" id="addSetupForm" style="display: none;">
-                    <input type="text" id="newSetupName" placeholder="Setup name (e.g. Normal, Bikepacking)" aria-label="New setup name">
-                    <div class="input-row-pair">
-                        <div>
-                            <label class="form-label" for="newSetupRiderWeight">Rider weight</label>
-                            <input type="number" id="newSetupRiderWeight" placeholder="Weight" step="0.5" aria-label="Rider weight">
-                        </div>
-                        <div>
-                            <label class="form-label" for="newSetupBikeWeight">Bike weight</label>
-                            <input type="number" id="newSetupBikeWeight" placeholder="Weight" step="0.1" aria-label="Bike weight">
-                        </div>
-                    </div>
-                    <label class="form-label" for="newSetupWeightUnit">Weight unit</label>
-                    <select id="newSetupWeightUnit" aria-label="Weight unit">
-                        <option value="lbs">lbs</option>
-                        <option value="kg">kg</option>
-                    </select>
-                    <div class="collapsible-section collapsible-section--collapsed" id="newSetupLuggageSection">
-                        <button type="button" class="collapsible-trigger" onclick="toggleCollapsible('newSetupLuggageSection')" aria-expanded="false" aria-controls="newSetupLuggageContent">
-                            Luggage & Load
-                        </button>
-                        <div class="collapsible-content" id="newSetupLuggageContent">
-                            <div class="input-row-pair">
-                                <div>
-                                    <label class="form-label" for="newSetupFrontLuggage">Front luggage</label>
-                                    <input type="number" id="newSetupFrontLuggage" placeholder="0" step="0.1" aria-label="Front luggage weight">
-                                </div>
-                                <div>
-                                    <label class="form-label" for="newSetupRearLuggage">Rear luggage</label>
-                                    <input type="number" id="newSetupRearLuggage" placeholder="0" step="0.1" aria-label="Rear luggage weight">
-                                </div>
-                            </div>
-                            <label class="form-label" for="newSetupFrameLoad">Frame load (splits equally front/rear)</label>
-                            <input type="number" id="newSetupFrameLoad" placeholder="0" step="0.1" aria-label="Frame load weight">
-                        </div>
-                    </div>
-                    <div class="collapsible-section collapsible-section--collapsed" id="newSetupPositionSection">
-                        <button type="button" class="collapsible-trigger" onclick="toggleCollapsible('newSetupPositionSection')" aria-expanded="false" aria-controls="newSetupPositionContent">
-                            Position & Terrain
-                        </button>
-                        <div class="collapsible-content" id="newSetupPositionContent">
-                            <label class="form-label" for="newSetupBikeType">Bike type</label>
-                            <select id="newSetupBikeType" aria-label="Bike type">
-                                <option value="gravel">Gravel / Hardtail XC</option>
-                                <option value="road">Road</option>
-                                <option value="mountain">Mountain (Full Sus / Slack Geo)</option>
-                            </select>
-                            <div class="input-row-pair">
-                                <div>
-                                    <label class="form-label" for="newSetupFrameSize">Frame size</label>
-                                    <select id="newSetupFrameSize" aria-label="Frame size">
-                                        <option value="medium">Medium (5'5"–6'0" / 165–182cm)</option>
-                                        <option value="small">Small (under 5'6" / 168cm)</option>
-                                        <option value="tall">Tall (over 6'0" / 182cm)</option>
-                                    </select>
-                                </div>
-                                <div>
-                                    <label class="form-label" for="newSetupRidingPosition">Riding position</label>
-                                    <select id="newSetupRidingPosition" aria-label="Riding position">
-                                        <option value="intermediate">Intermediate</option>
-                                        <option value="upright">Upright</option>
-                                        <option value="low">Low / Stretched out</option>
-                                        <option value="aero">Aero / Flat back</option>
-                                    </select>
-                                </div>
-                            </div>
-                            <label class="form-label" for="newSetupSurface">Terrain</label>
-                            <select id="newSetupSurface" aria-label="Terrain">
-                                <option value="smooth_gravel">Smooth gravel</option>
-                                <option value="smooth_asphalt">Smooth asphalt</option>
-                                <option value="rough_asphalt">Rough asphalt</option>
-                                <option value="coarse_gravel">Coarse gravel</option>
-                                <option value="rough_gravel">Rough gravel / Large rocks</option>
-                                <option value="mixed_paved_gravel">Mixed paved/gravel</option>
-                                <option value="singletrack">Singletrack / Mountain</option>
-                            </select>
-                        </div>
-                    </div>
-                    <button onclick="addSetup()">Add Setup</button>
-                </div>
-                <button id="addSetupToggle" class="btn-link" onclick="toggleAddSetup()">+ New Setup</button>
+                <div id="setupEmpty" class="empty-state" style="display: none;">No setups yet</div>
+                <div class="manage-hint">Set weights & terrain in the calculator, then use <strong>Save as new setup</strong>.</div>
+                <button class="btn-link" onclick="scrollToCalculator()">+ New setup (in calculator)</button>
             </div>
         </div>
 
@@ -223,6 +103,11 @@
             <div class="calculator-header">
                 <span class="calculator-label">Calculate</span>
                 <span class="calculator-serial">SYS::CALC ◇ +</span>
+            </div>
+
+            <div id="contextBar" class="context-bar">
+                <span id="contextChip" class="context-chip">Quick calculate (unsaved)</span>
+                <span id="dirtyBadge" class="dirty-badge" style="display:none;">Modified</span>
             </div>
 
             <form id="calcForm" onsubmit="handleCalculate(event)">
@@ -408,7 +293,37 @@
                         <span class="copy-hint">tap to copy</span>
                     </div>
                 </div>
-                <button id="saveBtn" class="btn-link save-btn" style="display: none;" onclick="savePressure()">Save this result</button>
+                <div id="savedResultBanner" class="saved-banner" style="display:none;"></div>
+                <div id="saveActions" class="save-actions" style="display:none;">
+                    <button id="savePressureBtn" class="btn-primary save-btn-primary" onclick="savePressure()">Save pressure</button>
+                    <div class="save-actions-secondary">
+                        <button id="updateSetupBtn" class="btn-link" style="display:none;" onclick="updateSetup()">Update setup</button>
+                        <button id="saveAsNewSetupBtn" class="btn-link" onclick="saveAsNewSetup(false)">Save as new setup</button>
+                        <button id="updateBikeBtn" class="btn-link" style="display:none;" onclick="updateBike()">Update bike</button>
+                        <button id="saveAsNewBikeBtn" class="btn-link" onclick="saveAsNewBike()">Save as new bike</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- All saved pressures panel -->
+        <div id="savedPanel" class="manage-panel" style="display: none;" role="region" aria-label="All saved pressures">
+            <button class="manage-close" onclick="toggleSavedPanel()" aria-label="Close saved pressures panel">×</button>
+            <h3>All Saved Pressures</h3>
+            <div id="savedList" class="item-list" aria-label="All saved pressures list"></div>
+            <div id="savedEmpty" class="empty-state">No saved pressures yet — calculate and save one</div>
+        </div>
+
+        <!-- Name prompt modal (save-as-new flows) -->
+        <div id="namePrompt" class="prompt-modal" style="display: none;" role="dialog" aria-modal="true" aria-labelledby="promptTitle">
+            <div class="prompt-backdrop" onclick="closePrompt()"></div>
+            <div class="prompt-card">
+                <h3 id="promptTitle">Save</h3>
+                <input type="text" id="promptInput" aria-label="Name" onkeydown="if(event.key==='Enter'){event.preventDefault();confirmPrompt();} if(event.key==='Escape'){event.preventDefault();closePrompt();}">
+                <div class="prompt-actions">
+                    <button class="btn-link" onclick="closePrompt()">Cancel</button>
+                    <button id="promptConfirm" class="btn-primary" onclick="confirmPrompt()">Save</button>
+                </div>
             </div>
         </div>
 

@@ -29,6 +29,12 @@ let pendingPressureDeletes = new Set();
 const QUICKCALC_KEY = 'tpc_quickcalc';
 const PRESSURE_INPUTS_PREFIX = 'tpc_pressure_inputs_';
 
+// Context / dirty / global-saved state (calculator-first UX)
+let loadedBikeSnapshot = null;   // calculator bike-field snapshot when a bike is loaded
+let loadedSetupSnapshot = null;  // calculator setup-field snapshot when a setup is loaded
+let allPressures = [];           // global saved-pressures list (Saved panel)
+let promptCallback = null;       // pending name-prompt callback
+
 // ─── API helpers ───────────────────────────────────────────────────
 
 async function api(path, opts = {}) {
@@ -353,6 +359,170 @@ function loadQuickCalc() {
   } catch (e) { /* ignore parse errors */ }
 }
 
+// ─── Context & dirty state (calculator-first UX) ───────────────────
+
+function escapeHtml(s) {
+  return String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+}
+
+function shallowEqual(a, b) {
+  const ka = Object.keys(a), kb = Object.keys(b);
+  if (ka.length !== kb.length) return false;
+  for (const k of ka) if (a[k] !== b[k]) return false;
+  return true;
+}
+
+function getBikeInputs() {
+  return {
+    frontTireWidth: document.getElementById('frontTireWidth').value,
+    rearTireWidth: document.getElementById('rearTireWidth').value,
+    tireUnit: document.getElementById('tireUnit').value,
+    rimWidth: document.getElementById('rimWidth').value,
+    casingType: document.getElementById('casingType').value,
+    isTubeless: document.getElementById('isTubeless').checked,
+  };
+}
+
+function getSetupInputs() {
+  return {
+    riderWeight: document.getElementById('riderWeight').value,
+    bikeWeight: document.getElementById('bikeWeight').value,
+    weightUnit: document.getElementById('weightUnit').value,
+    bikeType: document.getElementById('bikeType').value,
+    frontLuggage: document.getElementById('frontLuggage').value,
+    rearLuggage: document.getElementById('rearLuggage').value,
+    frameLoad: document.getElementById('frameLoad').value,
+    frameSize: document.getElementById('frameSize').value,
+    ridingPosition: document.getElementById('ridingPosition').value,
+    surfaceType: document.getElementById('surfaceType').value,
+  };
+}
+
+function applyBikeToCalculator(bike) {
+  if (!bike) return;
+  document.getElementById('frontTireWidth').value = bike.front_tire_width;
+  document.getElementById('rearTireWidth').value = bike.rear_tire_width || '';
+  document.getElementById('tireUnit').value = bike.tire_width_unit;
+  document.getElementById('rearTireUnit').textContent = bike.tire_width_unit;
+  document.getElementById('rimWidth').value = bike.rim_width_mm;
+  document.getElementById('casingType').value = bike.casing_type;
+  document.getElementById('isTubeless').checked = !!bike.is_tubeless;
+}
+
+function applySetupToCalculator(s) {
+  if (!s) return;
+  document.getElementById('riderWeight').value = s.rider_weight;
+  document.getElementById('bikeWeight').value = s.bike_weight;
+  document.getElementById('frontLuggage').value = s.front_luggage_weight || 0;
+  document.getElementById('rearLuggage').value = s.rear_luggage_weight || 0;
+  document.getElementById('frameLoad').value = s.frame_load_weight || 0;
+  document.getElementById('weightUnit').value = s.weight_unit;
+  document.getElementById('bikeType').value = s.bike_type;
+  document.getElementById('frameSize').value = s.frame_size;
+  document.getElementById('ridingPosition').value = s.riding_position;
+  document.getElementById('surfaceType').value = s.surface_type;
+  document.querySelectorAll('#bikeWeightUnit, #frontLuggageUnit, #rearLuggageUnit, #frameLoadUnit').forEach(el => el.textContent = s.weight_unit);
+}
+
+function snapshotBike() { loadedBikeSnapshot = currentBikeId ? getBikeInputs() : null; }
+function snapshotSetup() { loadedSetupSnapshot = currentSetupId ? getSetupInputs() : null; }
+
+function bikeDirty() {
+  if (!currentBikeId || !loadedBikeSnapshot) return false;
+  return !shallowEqual(getBikeInputs(), loadedBikeSnapshot);
+}
+function setupDirty() {
+  if (!currentSetupId || !loadedSetupSnapshot) return false;
+  return !shallowEqual(getSetupInputs(), loadedSetupSnapshot);
+}
+
+// ─── Context chip & save actions ───────────────────────────────────
+
+function updateContextChip() {
+  const chip = document.getElementById('contextChip');
+  if (!chip) return;
+  const rider = riders.find(r => r.id == currentRiderId);
+  const bike = bikes.find(b => b.id == currentBikeId);
+  const setup = setups.find(s => s.id == currentSetupId);
+  const sep = ' <span class="ctx-sep">›</span> ';
+  if (setup && bike && rider) {
+    chip.innerHTML = `<span class="ctx-name">${escapeHtml(rider.name)}</span>${sep}<span class="ctx-name">${escapeHtml(bike.name)}</span>${sep}<span class="ctx-name ctx-name--active">${escapeHtml(setup.name)}</span>`;
+  } else if (bike && rider) {
+    chip.innerHTML = `<span class="ctx-name">${escapeHtml(rider.name)}</span>${sep}<span class="ctx-name ctx-name--active">${escapeHtml(bike.name)}</span>`;
+  } else if (rider) {
+    chip.innerHTML = `<span class="ctx-name ctx-name--active">${escapeHtml(rider.name)}</span> <span class="ctx-hint">— select a bike</span>`;
+  } else {
+    chip.textContent = 'Quick calculate (unsaved)';
+  }
+}
+
+function updateSaveActions() {
+  const bar = document.getElementById('saveActions');
+  if (!bar) return;
+  const hasResult = !!lastResult;
+  bar.style.display = hasResult ? 'flex' : 'none';
+  const badge = document.getElementById('dirtyBadge');
+  if (badge) badge.style.display = (bikeDirty() || setupDirty()) ? 'inline-block' : 'none';
+  if (!hasResult) return;
+  const bDirty = bikeDirty(), sDirty = setupDirty();
+  const set = (id, on) => { const el = document.getElementById(id); if (el) el.style.display = on ? 'inline-flex' : 'none'; };
+  const sp = document.getElementById('savePressureBtn');
+  if (sp) { sp.style.display = 'inline-flex'; sp.textContent = currentSetupId ? 'Save pressure' : 'Save pressure to new setup'; }
+  set('saveAsNewSetupBtn', true);
+  set('updateSetupBtn', currentSetupId && sDirty);
+  set('saveAsNewBikeBtn', !currentBikeId || bDirty);
+  set('updateBikeBtn', currentBikeId && bDirty);
+}
+
+function checkDirty() { updateContextChip(); updateSaveActions(); }
+
+function scrollToCalculator() {
+  const calc = document.getElementById('calculator');
+  if (calc) calc.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+function hideSavedResultBanner() {
+  const b = document.getElementById('savedResultBanner');
+  if (b) b.style.display = 'none';
+}
+function showSavedResultBanner(p) {
+  const b = document.getElementById('savedResultBanner');
+  if (!b) return;
+  const raw = String(p.created_at);
+  const d = new Date(raw.endsWith('Z') ? raw : raw + 'Z');
+  b.textContent = `Saved result from ${isNaN(d.getTime()) ? new Date(raw).toLocaleString() : d.toLocaleString()} — inputs restored below`;
+  b.style.display = 'block';
+}
+
+// ─── Name prompt modal ─────────────────────────────────────────────
+
+function promptName(title, defaultValue, confirmLabel, callback) {
+  const modal = document.getElementById('namePrompt');
+  if (!modal) { const n = window.prompt(title, defaultValue || ''); if (callback) callback(n || ''); return; }
+  document.getElementById('promptTitle').textContent = title;
+  const input = document.getElementById('promptInput');
+  input.value = defaultValue || '';
+  const cb = document.getElementById('promptConfirm');
+  if (cb) cb.textContent = confirmLabel || 'Save';
+  promptCallback = callback;
+  modal.style.display = 'flex';
+  setTimeout(() => { input.focus(); input.select(); }, 0);
+}
+
+function confirmPrompt() {
+  const val = document.getElementById('promptInput').value.trim();
+  if (!val) { showToast('error', 'Name required'); return; }
+  const cb = promptCallback;
+  closePrompt();
+  if (cb) cb(val);
+}
+
+function closePrompt() {
+  const modal = document.getElementById('namePrompt');
+  if (modal) modal.style.display = 'none';
+  promptCallback = null;
+}
+
 // ─── Copy to clipboard ─────────────────────────────────────────────
 
 function copyPressure(which) {
@@ -497,6 +667,29 @@ async function loadHistory(setupId) {
   }
 }
 
+function parsePressureInputs(p) {
+  if (p.inputs) {
+    try { return typeof p.inputs === 'string' ? JSON.parse(p.inputs) : p.inputs; } catch (e) { /* ignore */ }
+  }
+  const json = localStorage.getItem(`${PRESSURE_INPUTS_PREFIX}${p.id}`);
+  if (json) { try { return JSON.parse(json); } catch (e) { /* ignore */ } }
+  return null;
+}
+
+function findPressureById(id) {
+  return historyPressures.find(p => p.id == id) || allPressures.find(p => p.id == id) || null;
+}
+
+function pressureSummary(inputs) {
+  if (!inputs) return '';
+  const tireW = inputs.frontTireWidth || '?';
+  const unit = inputs.tireUnit || 'mm';
+  const riderW = inputs.riderWeight || '?';
+  const wUnit = inputs.weightUnit || 'lbs';
+  const bike = inputs.bikeType || 'gravel';
+  return `<span class="history-summary">${tireW}${unit} · ${riderW}${wUnit} rider · ${bike}</span>`;
+}
+
 function renderHistoryList() {
   const el = document.getElementById('historyList');
   const visible = historyPressures.filter(p => !pendingPressureDeletes.has(p.id));
@@ -510,46 +703,114 @@ function renderHistoryList() {
   document.getElementById('historyCount').textContent = `${visible.length} saved`;
 
   el.innerHTML = visible.map(p => {
-    let summary = '';
-    let recallBtn = '';
-    const inputsJson = localStorage.getItem(`${PRESSURE_INPUTS_PREFIX}${p.id}`);
-    if (inputsJson) {
-      try {
-        const inputs = JSON.parse(inputsJson);
-        const tireW = inputs.frontTireWidth || '?';
-        const riderW = inputs.riderWeight || '?';
-        const unit = inputs.weightUnit || 'lbs';
-        const bike = inputs.bikeType || 'gravel';
-        summary = `<span class="history-summary">${tireW}mm · ${riderW}${unit} rider · ${bike}</span>`;
-        recallBtn = `<button class="btn-recall" onclick="recallPressure(${p.id})">Recall</button>`;
-      } catch (e) { /* ignore */ }
-    }
+    const summary = pressureSummary(parsePressureInputs(p));
+    const dateStr = new Date(p.created_at + (String(p.created_at).endsWith('Z') ? '' : 'Z')).toLocaleDateString();
     return `
-      <div class="history-item">
+      <div class="history-item" onclick="recallPressure(${p.id})" role="button" tabindex="0" aria-label="Recall saved pressure ${p.front_psi}/${p.rear_psi} psi">
         <span class="history-pressure">${p.front_psi}/${p.rear_psi} psi</span>
-        <span class="history-date">${new Date(p.created_at).toLocaleDateString()}</span>
-        ${recallBtn}
-        <button class="btn-link btn-delete" onclick="deletePressure(${p.id})" aria-label="Delete saved pressure">×</button>
+        <span class="history-date">${dateStr}</span>
         ${summary}
+        <button class="btn-link btn-delete" onclick="event.stopPropagation();deletePressure(${p.id})" aria-label="Delete saved pressure">×</button>
       </div>
     `;
   }).join('');
 }
 
-function recallPressure(id) {
-  const inputsJson = localStorage.getItem(`${PRESSURE_INPUTS_PREFIX}${id}`);
-  if (!inputsJson) {
-    showToast('info', 'Input details not available for this saved pressure');
+// Global "Saved" panel — every saved pressure across all setups, with context.
+function renderSavedList() {
+  const el = document.getElementById('savedList');
+  const empty = document.getElementById('savedEmpty');
+  if (!el) return;
+  const visible = allPressures.filter(p => !pendingPressureDeletes.has(p.id));
+  if (visible.length === 0) {
+    el.innerHTML = '';
+    if (empty) empty.style.display = 'block';
     return;
   }
+  if (empty) empty.style.display = 'none';
+  el.innerHTML = visible.map(p => {
+    const ctx = (p.rider_name && p.bike_name && p.setup_name)
+      ? `<span class="saved-context">${escapeHtml(p.rider_name)} <span class="ctx-sep">›</span> ${escapeHtml(p.bike_name)} <span class="ctx-sep">›</span> ${escapeHtml(p.setup_name)}</span>`
+      : '';
+    const summary = pressureSummary(parsePressureInputs(p));
+    const dateStr = new Date(p.created_at + (String(p.created_at).endsWith('Z') ? '' : 'Z')).toLocaleDateString();
+    return `
+      <div class="history-item" onclick="recallPressure(${p.id})" role="button" tabindex="0" aria-label="Recall saved pressure for ${escapeHtml(p.setup_name || '')}">
+        <span class="history-pressure">${p.front_psi}/${p.rear_psi} psi</span>
+        <span class="history-date">${dateStr}</span>
+        ${ctx}
+        ${summary}
+        <button class="btn-link btn-delete" onclick="event.stopPropagation();deletePressure(${p.id})" aria-label="Delete saved pressure">×</button>
+      </div>
+    `;
+  }).join('');
+}
+
+async function loadAllPressures() {
   try {
-    setCalculatorInputs(JSON.parse(inputsJson));
-    saveQuickCalc();
-    showToast('info', 'Inputs restored — click Calculate to recompute');
-    document.getElementById('calculator').scrollIntoView({ behavior: 'smooth', block: 'start' });
-  } catch (e) {
-    showToast('error', 'Failed to restore inputs');
+    allPressures = await api('/pressures');
+    renderSavedList();
+  } catch (err) {
+    showToast('error', 'Failed to load saved pressures: ' + err.message);
   }
+}
+
+function refreshHistory() {
+  loadHistory(currentSetupId);
+  const sp = document.getElementById('savedPanel');
+  if (sp && sp.style.display !== 'none') loadAllPressures();
+}
+
+// Load a full rider → bike → setup context (used when recalling from the global list).
+async function loadContext(riderId, bikeId, setupId) {
+  currentRiderId = riderId || null;
+  await loadBikes(currentRiderId);
+  currentBikeId = bikeId || null;
+  await loadSetups(currentBikeId);
+  currentSetupId = setupId || null;
+  document.getElementById('riderSelect').value = currentRiderId ?? '';
+  document.getElementById('bikeSelect').value = currentBikeId ?? '';
+  document.getElementById('setupSelect').value = currentSetupId ?? '';
+  if (currentBikeId) applyBikeToCalculator(bikes.find(b => b.id == currentBikeId));
+  if (currentSetupId) applySetupToCalculator(setups.find(s => s.id == currentSetupId));
+  snapshotBike();
+  snapshotSetup();
+  saveQuickCalc();
+  updateContextChip();
+  updateSaveActions();
+  loadHistory(currentSetupId);
+}
+
+// Recall a saved pressure: show the saved result, restore its inputs, and (if it
+// belongs to a different setup) load that setup's full context. Server-side
+// `inputs` make this robust across devices / after clearing storage.
+async function recallPressure(id) {
+  const p = findPressureById(id);
+  if (!p) { showToast('error', 'Pressure not found'); return; }
+
+  if (p.setup_id && p.setup_id != currentSetupId && (p.rider_id || p.bike_id)) {
+    await loadContext(p.rider_id, p.bike_id, p.setup_id);
+  }
+
+  lastResult = { frontPsi: p.front_psi, rearPsi: p.rear_psi, frontBar: p.front_bar, rearBar: p.rear_bar };
+  document.getElementById('frontPsi').textContent = p.front_psi;
+  document.getElementById('frontBar').textContent = p.front_bar;
+  document.getElementById('rearPsi').textContent = p.rear_psi;
+  document.getElementById('rearBar').textContent = p.rear_bar;
+  document.getElementById('results').style.display = 'block';
+
+  const inputs = parsePressureInputs(p);
+  if (inputs) {
+    setCalculatorInputs(inputs);
+    saveQuickCalc();
+    snapshotBike();
+    snapshotSetup();
+  }
+  showSavedResultBanner(p);
+  updateContextChip();
+  updateSaveActions();
+  showToast('info', 'Saved result restored' + (inputs ? ' — inputs loaded, tweak & recalc to compare' : ''));
+  document.getElementById('results').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
 }
 
 // ─── Select handlers ───────────────────────────────────────────────
@@ -558,52 +819,43 @@ document.getElementById('riderSelect').addEventListener('change', async (e) => {
   currentRiderId = e.target.value || null;
   currentBikeId = null;
   currentSetupId = null;
+  loadedBikeSnapshot = null;
+  loadedSetupSnapshot = null;
   await loadBikes(currentRiderId);
   await loadSetups(null);
-  loadHistory(null);
+  hideSavedResultBanner();
+  refreshHistory();
+  updateContextChip();
+  updateSaveActions();
 });
 
 document.getElementById('bikeSelect').addEventListener('change', async (e) => {
   currentBikeId = e.target.value || null;
   currentSetupId = null;
+  loadedSetupSnapshot = null;
   await loadSetups(currentBikeId);
-  loadHistory(null);
   if (currentBikeId) {
-    const bike = bikes.find(b => b.id == currentBikeId);
-    if (bike) {
-      document.getElementById('frontTireWidth').value = bike.front_tire_width;
-      document.getElementById('rearTireWidth').value = bike.rear_tire_width || '';
-      document.getElementById('tireUnit').value = bike.tire_width_unit;
-      document.getElementById('rearTireUnit').textContent = bike.tire_width_unit;
-      document.getElementById('rimWidth').value = bike.rim_width_mm;
-      document.getElementById('casingType').value = bike.casing_type;
-      document.getElementById('isTubeless').checked = !!bike.is_tubeless;
-      saveQuickCalc();
-    }
+    applyBikeToCalculator(bikes.find(b => b.id == currentBikeId));
+    saveQuickCalc();
   }
+  snapshotBike();
+  hideSavedResultBanner();
+  refreshHistory();
+  updateContextChip();
+  updateSaveActions();
 });
 
 document.getElementById('setupSelect').addEventListener('change', (e) => {
   currentSetupId = e.target.value || null;
-  loadHistory(currentSetupId);
   if (currentSetupId) {
-    const s = setups.find(x => x.id == currentSetupId);
-    if (s) {
-      document.getElementById('riderWeight').value = s.rider_weight;
-      document.getElementById('bikeWeight').value = s.bike_weight;
-      document.getElementById('frontLuggage').value = s.front_luggage_weight || 0;
-      document.getElementById('rearLuggage').value = s.rear_luggage_weight || 0;
-      document.getElementById('frameLoad').value = s.frame_load_weight || 0;
-      document.getElementById('weightUnit').value = s.weight_unit;
-      document.getElementById('bikeType').value = s.bike_type;
-      document.getElementById('frameSize').value = s.frame_size;
-      document.getElementById('ridingPosition').value = s.riding_position;
-      document.getElementById('surfaceType').value = s.surface_type;
-      document.querySelectorAll('#bikeWeightUnit, #frontLuggageUnit, #rearLuggageUnit, #frameLoadUnit').forEach(el => el.textContent = s.weight_unit);
-      saveQuickCalc();
-    }
+    applySetupToCalculator(setups.find(x => x.id == currentSetupId));
+    saveQuickCalc();
   }
-  document.getElementById('saveBtn').style.display = currentSetupId ? 'block' : 'none';
+  snapshotSetup();
+  hideSavedResultBanner();
+  refreshHistory();
+  updateContextChip();
+  updateSaveActions();
 });
 
 document.getElementById('weightUnit').addEventListener('change', function() {
@@ -670,7 +922,8 @@ async function handleCalculate(event) {
     document.getElementById('rearBar').textContent = result.rearBar;
     document.getElementById('results').style.display = 'block';
     document.getElementById('results').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-    document.getElementById('saveBtn').style.display = currentSetupId ? 'block' : 'none';
+    hideSavedResultBanner();
+    updateSaveActions();
 
     saveQuickCalc();
     announceResult(`Front ${result.frontPsi} PSI, Rear ${result.rearPsi} PSI`);
@@ -684,11 +937,14 @@ async function handleCalculate(event) {
 // ─── Save / Delete pressure ────────────────────────────────────────
 
 async function savePressure() {
-  if (!currentSetupId || !lastResult) return;
-
-  setLoading('saveBtn');
+  if (!lastResult) return;
+  // No setup selected yet → create one first, then save the pressure into it.
+  if (!currentSetupId) {
+    return saveAsNewSetup(true);
+  }
+  setLoading('savePressureBtn');
   try {
-    const result = await api('/pressures', {
+    await api('/pressures', {
       method: 'POST',
       body: {
         setup_id: Number(currentSetupId),
@@ -696,26 +952,23 @@ async function savePressure() {
         rear_psi: lastResult.rearPsi,
         front_bar: lastResult.frontBar,
         rear_bar: lastResult.rearBar,
+        inputs: getCalculatorInputs(),
       },
     });
-
-    // Store calculator inputs for recall
-    try {
-      localStorage.setItem(`${PRESSURE_INPUTS_PREFIX}${result.id}`, JSON.stringify(getCalculatorInputs()));
-    } catch (e) { /* ignore */ }
-
     await loadHistory(currentSetupId);
+    if (document.getElementById('savedPanel') && document.getElementById('savedPanel').style.display !== 'none') loadAllPressures();
     showToast('success', 'Pressure saved');
   } catch (err) {
     showToast('error', 'Save error: ' + err.message);
   } finally {
-    clearLoading('saveBtn');
+    clearLoading('savePressureBtn');
   }
 }
 
 function deletePressure(id) {
   pendingPressureDeletes.add(id);
   renderHistoryList();
+  renderSavedList();
 
   scheduleUndo(
     'Pressure',
@@ -723,6 +976,7 @@ function deletePressure(id) {
     () => {
       pendingPressureDeletes.delete(id);
       renderHistoryList();
+      renderSavedList();
     },
     async () => {
       await api(`/pressures/${id}`, { method: 'DELETE' });
@@ -743,14 +997,14 @@ function toggleManage() {
   }
 }
 
-function toggleAddBike() {
-  const form = document.getElementById('addBikeForm');
-  form.style.display = form.style.display === 'none' ? 'flex' : 'none';
-}
-
-function toggleAddSetup() {
-  const form = document.getElementById('addSetupForm');
-  form.style.display = form.style.display === 'none' ? 'flex' : 'none';
+function toggleSavedPanel() {
+  const panel = document.getElementById('savedPanel');
+  const isHidden = panel.style.display === 'none';
+  panel.style.display = isHidden ? 'block' : 'none';
+  if (isHidden) {
+    loadAllPressures();
+    panel.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
 }
 
 // ─── Riders ────────────────────────────────────────────────────────
@@ -992,43 +1246,91 @@ function cancelBikeEdit(id) {
   renderBikeList();
 }
 
-async function addBike() {
+// Save current calculator tire/rim/casing fields as a new bike under the active
+// rider (creating the rider first if none is selected). Calculator-first creation.
+function saveAsNewBike(onSaved) {
   if (!currentRiderId) {
-    showToast('error', 'Select a rider first');
+    promptName('New rider name', '', 'Create rider', async (riderName) => {
+      if (!riderName) return;
+      try {
+        const r = await api('/riders', { method: 'POST', body: { name: riderName } });
+        await loadRiders();
+        currentRiderId = r.id;
+        document.getElementById('riderSelect').value = r.id;
+        await loadBikes(currentRiderId);
+        updateContextChip();
+        saveAsNewBike(onSaved);
+      } catch (err) {
+        showToast('error', 'Failed to create rider: ' + err.message);
+      }
+    });
     return;
   }
 
-  const name = document.getElementById('newBikeName').value.trim();
-  const front_tire_width = parseFloat(document.getElementById('newBikeFrontTireWidth').value);
+  const bi = getBikeInputs();
+  const front_tire_width = parseFloat(bi.frontTireWidth);
+  if (!front_tire_width) {
+    showToast('error', 'Enter a front tire width in the calculator first');
+    return;
+  }
 
-  clearFieldError('newBikeName');
-  clearFieldError('newBikeFrontTireWidth');
+  promptName('Save as new bike', '', 'Save bike', async (name) => {
+    if (!name) return;
+    try {
+      const result = await api('/bikes', {
+        method: 'POST',
+        body: {
+          rider_id: Number(currentRiderId),
+          name,
+          front_tire_width,
+          rear_tire_width: parseFloat(bi.rearTireWidth) || null,
+          tire_width_unit: bi.tireUnit,
+          rim_width_mm: parseFloat(bi.rimWidth) || 23,
+          casing_type: bi.casingType,
+          is_tubeless: bi.isTubeless ? 1 : 0,
+        },
+      });
+      await loadBikes(currentRiderId);
+      currentBikeId = result.id;
+      document.getElementById('bikeSelect').value = result.id;
+      snapshotBike();
+      updateContextChip();
+      updateSaveActions();
+      showToast('success', 'Bike saved');
+      if (typeof onSaved === 'function') onSaved();
+    } catch (err) {
+      showToast('error', 'Failed to save bike: ' + err.message);
+    }
+  });
+}
 
-  let hasError = false;
-  if (!name) { showFieldError('newBikeName', 'Bike name required'); hasError = true; }
-  if (!front_tire_width) { showFieldError('newBikeFrontTireWidth', 'Front tire width required'); hasError = true; }
-  if (hasError) return;
-
-  const rear_tire_width = parseFloat(document.getElementById('newBikeRearTireWidth').value) || null;
-  const tire_width_unit = document.getElementById('newBikeTireUnit').value;
-  const rim_width_mm = parseFloat(document.getElementById('newBikeRimWidth').value) || 23;
-  const casing_type = document.getElementById('newBikeCasing').value;
-  const is_tubeless = document.getElementById('newBikeTubeless').checked ? 1 : 0;
-
+// Update the currently-selected bike with the calculator's tire/rim/casing fields.
+async function updateBike() {
+  if (!currentBikeId) return;
+  const bi = getBikeInputs();
+  const front_tire_width = parseFloat(bi.frontTireWidth);
+  if (!front_tire_width) { showToast('error', 'Front tire width required'); return; }
+  const bike = bikes.find(b => b.id == currentBikeId);
   try {
-    const result = await api('/bikes', { method: 'POST', body: { rider_id: Number(currentRiderId), name, front_tire_width, rear_tire_width, tire_width_unit, rim_width_mm, casing_type, is_tubeless } });
-    document.getElementById('newBikeName').value = '';
-    document.getElementById('newBikeFrontTireWidth').value = '';
-    document.getElementById('newBikeRearTireWidth').value = '';
-    document.getElementById('addBikeForm').style.display = 'none';
+    await api(`/bikes/${currentBikeId}`, {
+      method: 'PUT',
+      body: {
+        name: bike.name,
+        front_tire_width,
+        rear_tire_width: parseFloat(bi.rearTireWidth) || null,
+        tire_width_unit: bi.tireUnit,
+        rim_width_mm: parseFloat(bi.rimWidth) || 23,
+        casing_type: bi.casingType,
+        is_tubeless: bi.isTubeless ? 1 : 0,
+      },
+    });
     await loadBikes(currentRiderId);
-    document.getElementById('bikeSelect').value = result.id;
-    currentBikeId = result.id;
-    document.getElementById('bikeSelect').dispatchEvent(new Event('change'));
-    await loadSetups(currentBikeId);
-    showToast('success', 'Bike added');
+    document.getElementById('bikeSelect').value = currentBikeId;
+    snapshotBike();
+    updateSaveActions();
+    showToast('success', 'Bike updated');
   } catch (err) {
-    showToast('error', 'Failed to add bike: ' + err.message);
+    showToast('error', 'Update failed: ' + err.message);
   }
 }
 
@@ -1200,47 +1502,89 @@ function cancelSetupEdit(id) {
   renderSetupList();
 }
 
-async function addSetup() {
+// Save current calculator weights/terrain/position as a new setup under the
+// active bike (creating a bike — and rider — first if needed). Calculator-first.
+function saveAsNewSetup(andSavePressure) {
   if (!currentBikeId) {
-    showToast('error', 'Select a bike first');
+    showToast('info', 'Save a bike first');
+    return saveAsNewBike(() => saveAsNewSetup(andSavePressure));
+  }
+  const si = getSetupInputs();
+  const rider_weight = parseFloat(si.riderWeight);
+  const bike_weight = parseFloat(si.bikeWeight);
+  if (!rider_weight || !bike_weight) {
+    showToast('error', 'Enter rider and bike weight in the calculator first');
     return;
   }
 
-  const name = document.getElementById('newSetupName').value.trim();
-  const rider_weight = parseFloat(document.getElementById('newSetupRiderWeight').value);
-  const bike_weight = parseFloat(document.getElementById('newSetupBikeWeight').value);
+  promptName('Save as new setup', '', 'Save setup', async (name) => {
+    if (!name) return;
+    try {
+      const result = await api('/setups', {
+        method: 'POST',
+        body: {
+          bike_id: Number(currentBikeId),
+          name,
+          rider_weight,
+          bike_weight,
+          front_luggage_weight: parseFloat(si.frontLuggage) || 0,
+          rear_luggage_weight: parseFloat(si.rearLuggage) || 0,
+          frame_load_weight: parseFloat(si.frameLoad) || 0,
+          weight_unit: si.weightUnit,
+          bike_type: si.bikeType,
+          frame_size: si.frameSize,
+          riding_position: si.ridingPosition,
+          surface_type: si.surfaceType,
+        },
+      });
+      await loadSetups(currentBikeId);
+      currentSetupId = result.id;
+      document.getElementById('setupSelect').value = result.id;
+      snapshotSetup();
+      updateContextChip();
+      updateSaveActions();
+      showToast('success', 'Setup saved');
+      if (andSavePressure && lastResult) {
+        await savePressure();
+      }
+    } catch (err) {
+      showToast('error', 'Failed to save setup: ' + err.message);
+    }
+  });
+}
 
-  clearFieldError('newSetupName');
-  clearFieldError('newSetupRiderWeight');
-  clearFieldError('newSetupBikeWeight');
-
-  let hasError = false;
-  if (!name) { showFieldError('newSetupName', 'Setup name required'); hasError = true; }
-  if (!rider_weight) { showFieldError('newSetupRiderWeight', 'Rider weight required'); hasError = true; }
-  if (!bike_weight) { showFieldError('newSetupBikeWeight', 'Bike weight required'); hasError = true; }
-  if (hasError) return;
-
-  const front_luggage_weight = parseFloat(document.getElementById('newSetupFrontLuggage').value) || 0;
-  const rear_luggage_weight = parseFloat(document.getElementById('newSetupRearLuggage').value) || 0;
-  const frame_load_weight = parseFloat(document.getElementById('newSetupFrameLoad').value) || 0;
-  const weight_unit = document.getElementById('newSetupWeightUnit').value;
-  const bike_type = document.getElementById('newSetupBikeType').value;
-  const frame_size = document.getElementById('newSetupFrameSize').value;
-  const riding_position = document.getElementById('newSetupRidingPosition').value;
-  const surface_type = document.getElementById('newSetupSurface').value;
-
+// Update the currently-selected setup with the calculator's weights/terrain/position.
+async function updateSetup() {
+  if (!currentSetupId) return;
+  const si = getSetupInputs();
+  const rider_weight = parseFloat(si.riderWeight);
+  const bike_weight = parseFloat(si.bikeWeight);
+  if (!rider_weight || !bike_weight) { showToast('error', 'Rider and bike weight required'); return; }
+  const s = setups.find(x => x.id == currentSetupId);
   try {
-    const result = await api('/setups', { method: 'POST', body: { bike_id: Number(currentBikeId), name, rider_weight, bike_weight, front_luggage_weight, rear_luggage_weight, frame_load_weight, weight_unit, bike_type, frame_size, riding_position, surface_type } });
-    document.getElementById('newSetupName').value = '';
-    document.getElementById('addSetupForm').style.display = 'none';
+    await api(`/setups/${currentSetupId}`, {
+      method: 'PUT',
+      body: {
+        name: s.name,
+        rider_weight,
+        bike_weight,
+        front_luggage_weight: parseFloat(si.frontLuggage) || 0,
+        rear_luggage_weight: parseFloat(si.rearLuggage) || 0,
+        frame_load_weight: parseFloat(si.frameLoad) || 0,
+        weight_unit: si.weightUnit,
+        bike_type: si.bikeType,
+        frame_size: si.frameSize,
+        riding_position: si.ridingPosition,
+        surface_type: si.surfaceType,
+      },
+    });
     await loadSetups(currentBikeId);
-    document.getElementById('setupSelect').value = result.id;
-    currentSetupId = result.id;
-    document.getElementById('setupSelect').dispatchEvent(new Event('change'));
-    loadHistory(currentSetupId);
-    showToast('success', 'Setup added');
+    document.getElementById('setupSelect').value = currentSetupId;
+    snapshotSetup();
+    updateSaveActions();
+    showToast('success', 'Setup updated');
   } catch (err) {
-    showToast('error', 'Failed to add setup: ' + err.message);
+    showToast('error', 'Update failed: ' + err.message);
   }
 }
 
@@ -1256,8 +1600,9 @@ async function deleteSetup(id) {
 
   if (wasCurrent) {
     currentSetupId = null;
-    loadHistory(null);
-    document.getElementById('saveBtn').style.display = 'none';
+    loadedSetupSnapshot = null;
+    refreshHistory();
+    updateSaveActions();
   }
 
   scheduleUndo(
@@ -1269,7 +1614,8 @@ async function deleteSetup(id) {
         currentSetupId = id;
         document.getElementById('setupSelect').value = id;
         loadHistory(id);
-        document.getElementById('saveBtn').style.display = 'block';
+        snapshotSetup();
+        updateSaveActions();
       }
     },
     async () => {
@@ -1301,9 +1647,9 @@ document.getElementById('rearCard').addEventListener('keydown', (e) => {
   if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); copyPressure('rear'); }
 });
 
-// Save calculator inputs on change
-document.getElementById('calcForm').addEventListener('input', saveQuickCalc);
-document.getElementById('calcForm').addEventListener('change', saveQuickCalc);
+// Save calculator inputs + track dirty state on change
+document.getElementById('calcForm').addEventListener('input', () => { saveQuickCalc(); checkDirty(); });
+document.getElementById('calcForm').addEventListener('change', () => { saveQuickCalc(); checkDirty(); });
 
 // ─── Init ──────────────────────────────────────────────────────────
 
@@ -1313,6 +1659,8 @@ function showManage(section) {
   document.getElementById('calculator').style.display = 'block';
   onboarded = true;
   loadRiders().then(() => {
+    updateContextChip();
+    checkDirty();
     const panel = document.getElementById('managePanel');
     panel.style.display = 'block';
     panel.scrollIntoView({ behavior: 'smooth', block: 'start' });
@@ -1327,8 +1675,9 @@ function skipOnboarding() {
   document.getElementById('profileBar').style.display = 'flex';
   document.getElementById('calculator').style.display = 'block';
   onboarded = true;
-  loadRiders();
+  loadRiders().then(() => checkDirty());
   loadQuickCalc();
+  checkDirty();
 }
 
 // Check if user has existing data

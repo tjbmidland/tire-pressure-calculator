@@ -66,4 +66,14 @@ db.exec(`
   );
 `);
 
+// ─── Migrations ─────────────────────────────────────────────────────
+// saved_pressures: store the producing inputs + optional label/notes so
+// recall is robust (server-side) instead of relying on fragile localStorage.
+(function migrateSavedPressures() {
+  const cols = db.prepare("PRAGMA table_info(saved_pressures)").all().map(c => c.name);
+  if (!cols.includes('inputs')) db.exec("ALTER TABLE saved_pressures ADD COLUMN inputs TEXT");
+  if (!cols.includes('label'))  db.exec("ALTER TABLE saved_pressures ADD COLUMN label TEXT");
+  if (!cols.includes('notes'))  db.exec("ALTER TABLE saved_pressures ADD COLUMN notes TEXT");
+})();
+
 module.exports = db;

@@ -1896,3 +1896,242 @@ label {
         animation: none;
     }
 }
+
+/* ─── Calculator-first UX: context chip, save bar, saved panel, prompt ── */
+
+.profile-actions {
+    display: flex;
+    gap: var(--s3);
+    align-items: center;
+}
+
+/* Active context chip + dirty badge (above the calculator) */
+.context-bar {
+    display: flex;
+    align-items: center;
+    gap: var(--s3);
+    padding: var(--s2) var(--s3);
+    margin-bottom: var(--s4);
+    border: 1px solid var(--dark-400);
+    background: var(--dark-900);
+}
+
+.context-chip {
+    font-family: 'Space Mono', monospace;
+    font-size: var(--sm);
+    color: var(--gray-300);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    flex: 1;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.context-chip .ctx-name { color: var(--gray-200); }
+.context-chip .ctx-name--active { color: var(--acid); text-shadow: 0 0 8px var(--acid-glow); }
+.context-chip .ctx-sep { color: var(--dark-300); margin: 0 2px; }
+.context-chip .ctx-hint { color: var(--gray-500); text-transform: none; letter-spacing: 0.02em; }
+
+.dirty-badge {
+    font-family: 'Space Mono', monospace;
+    font-size: var(--xs);
+    color: var(--magenta);
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    border: 1px solid var(--magenta);
+    padding: 2px var(--s2);
+    text-shadow: 0 0 8px var(--magenta-glow);
+    animation: dirty-pulse 1.6s ease-in-out infinite;
+}
+
+@keyframes dirty-pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.55; }
+}
+
+/* Contextual save bar (replaces the old single Save button) */
+.save-actions {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    gap: var(--s3);
+    margin-top: var(--s5);
+}
+
+.save-btn-primary {
+    width: 100%;
+    padding: var(--s4);
+    background: var(--magenta);
+    color: var(--white);
+    border: 1px solid var(--magenta);
+    font-family: 'Orbitron', sans-serif;
+    font-size: var(--base);
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.3em;
+    cursor: pointer;
+    transition: all var(--normal);
+}
+
+.save-btn-primary:hover {
+    background: var(--white);
+    color: var(--magenta);
+    box-shadow: 0 0 24px var(--magenta-glow);
+}
+
+.save-actions-secondary {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--s3) var(--s5);
+    justify-content: center;
+}
+
+.save-actions-secondary .btn-link {
+    font-size: var(--xs);
+}
+
+/* Primary button (shared) */
+.btn-primary {
+    background: var(--magenta);
+    color: var(--white);
+    border: 1px solid var(--magenta);
+    font-family: 'Orbitron', sans-serif;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.2em;
+    cursor: pointer;
+    transition: all var(--normal);
+}
+.btn-primary:hover {
+    background: var(--white);
+    color: var(--magenta);
+    box-shadow: 0 0 20px var(--magenta-glow);
+}
+
+/* "Saved result" banner shown when recalling */
+.saved-banner {
+    margin-top: var(--s4);
+    padding: var(--s3) var(--s4);
+    border: 1px solid var(--cyan);
+    background: var(--cyan-faint);
+    color: var(--cyan);
+    font-family: 'Space Mono', monospace;
+    font-size: var(--sm);
+    letter-spacing: 0.08em;
+    text-shadow: 0 0 8px var(--cyan-glow);
+}
+
+/* Saved-pressures global panel row context */
+.saved-context {
+    color: var(--gray-400);
+    font-family: 'Space Mono', monospace;
+    font-size: var(--xs);
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    flex: 1;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+.saved-context .ctx-sep { color: var(--dark-300); }
+
+/* Make history rows feel clickable (recall on click) */
+.history-item[role="button"] {
+    cursor: pointer;
+}
+.history-item[role="button"]:focus-visible {
+    outline: 1px solid var(--acid);
+    outline-offset: 2px;
+}
+
+/* Manage-panel hint (calculator-first creation) */
+.manage-hint {
+    font-family: 'Space Mono', monospace;
+    font-size: var(--xs);
+    color: var(--gray-500);
+    letter-spacing: 0.06em;
+    padding: var(--s2) 0 var(--s3);
+    border-top: 1px dashed var(--dark-400);
+    margin-top: var(--s3);
+}
+.manage-hint strong { color: var(--acid); font-weight: 600; }
+
+/* Name-prompt modal */
+.prompt-modal {
+    position: fixed;
+    inset: 0;
+    z-index: 10000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: var(--s4);
+}
+.prompt-backdrop {
+    position: absolute;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.7);
+    backdrop-filter: blur(2px);
+}
+.prompt-card {
+    position: relative;
+    width: 100%;
+    max-width: 420px;
+    background: var(--dark-800);
+    border: 1px solid var(--acid);
+    box-shadow: 0 0 40px var(--acid-glow), 0 24px 80px rgba(0,0,0,0.6);
+    padding: var(--s5);
+}
+.prompt-card h3 {
+    font-family: 'Orbitron', sans-serif;
+    font-size: var(--sm);
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.3em;
+    color: var(--acid);
+    margin-bottom: var(--s4);
+}
+.prompt-card input[type="text"] {
+    width: 100%;
+    padding: var(--s3);
+    background: var(--dark-900);
+    border: 1px solid var(--dark-400);
+    color: var(--white);
+    font-family: 'Chakra Petch', sans-serif;
+    font-size: var(--lg);
+    margin-bottom: var(--s4);
+}
+.prompt-card input[type="text"]:focus {
+    outline: none;
+    border-color: var(--acid);
+    box-shadow: 0 0 12px var(--acid-glow);
+}
+.prompt-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: var(--s4);
+    align-items: center;
+}
+.prompt-actions .btn-primary {
+    padding: var(--s2) var(--s4);
+    font-size: var(--xs);
+}
+
+/* Saved panel header tweak */
+#savedPanel h3 {
+    font-family: 'Orbitron', sans-serif;
+    font-size: var(--sm);
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.3em;
+    color: var(--cyan);
+    margin-bottom: var(--s4);
+    text-shadow: 0 0 10px var(--cyan-glow);
+}
+
+@media (max-width: 600px) {
+    .save-actions-secondary { gap: var(--s2) var(--s4); }
+    .context-chip { font-size: var(--xs); }
+}
