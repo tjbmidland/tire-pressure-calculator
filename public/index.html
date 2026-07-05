@@ -49,111 +49,168 @@
         <!-- Profile selector -->
         <div id="profileBar" class="profile-bar" style="display: none;">
             <div class="profile-selects">
-                <select id="riderSelect"><option value="">Rider</option></select>
-                <select id="bikeSelect" disabled><option value="">Bike</option></select>
-                <select id="setupSelect" disabled><option value="">Setup</option></select>
+                <select id="riderSelect" aria-label="Select rider"><option value="">Rider</option></select>
+                <select id="bikeSelect" aria-label="Select bike" disabled><option value="">Bike</option></select>
+                <select id="setupSelect" aria-label="Select setup" disabled><option value="">Setup</option></select>
             </div>
-            <button id="manageBtn" class="btn-link" onclick="toggleManage()">Manage</button>
+            <button id="manageBtn" class="btn-link" onclick="toggleManage()" aria-label="Open management panel">Manage</button>
         </div>
 
         <!-- Management panel -->
-        <div id="managePanel" class="manage-panel" style="display: none;">
+        <div id="managePanel" class="manage-panel" style="display: none;" role="region" aria-label="Management panel">
+            <button class="manage-close" onclick="toggleManage()" aria-label="Close management panel">×</button>
             <div class="manage-section">
                 <h3>Riders</h3>
-                <div id="riderList" class="item-list"></div>
+                <div id="riderList" class="item-list" aria-label="Rider list"></div>
+                <div id="riderEmpty" class="empty-state" style="display: none;">No riders yet — add one above</div>
                 <div class="add-row">
-                    <input type="text" id="newRiderName" placeholder="Name">
+                    <input type="text" id="newRiderName" placeholder="Name" aria-label="New rider name">
                     <button onclick="addRider()">Add</button>
                 </div>
             </div>
             <div class="manage-section">
                 <h3>Bikes <span id="bikeRiderLabel"></span></h3>
-                <div id="bikeList" class="item-list"></div>
+                <div id="bikeGuidance" class="manage-guidance">Select a rider above to manage their bikes</div>
+                <div id="bikeList" class="item-list" aria-label="Bike list"></div>
+                <div id="bikeEmpty" class="empty-state" style="display: none;">No bikes yet — add one below</div>
                 <div class="add-form" id="addBikeForm" style="display: none;">
-                    <input type="text" id="newBikeName" placeholder="Bike name">
-                    <label class="form-label">Tire width unit</label>
-                    <select id="newBikeTireUnit">
-                        <option value="mm">mm</option>
-                        <option value="in">inches</option>
-                    </select>
-                    <label class="form-label">Front tire width</label>
-                    <input type="number" id="newBikeFrontTireWidth" placeholder="Width" step="0.5">
-                    <label class="form-label">Rear tire width (blank = same as front)</label>
-                    <input type="number" id="newBikeRearTireWidth" placeholder="Width" step="0.5">
-                    <label class="form-label">Rim internal width (mm)</label>
-                    <input type="number" id="newBikeRimWidth" placeholder="23" step="0.5" value="23">
-                    <label class="form-label">Casing</label>
-                    <select id="newBikeCasing">
-                        <option value="endurance">Endurance</option>
-                        <option value="endurance_plus">Endurance+</option>
-                        <option value="standard">Standard</option>
-                        <option value="extralight">Extralight/Race</option>
-                    </select>
-                    <label class="toggle-label">
-                        <input type="checkbox" id="newBikeTubeless" checked>
-                        <span>Tubeless</span>
-                    </label>
+                    <input type="text" id="newBikeName" placeholder="Bike name" aria-label="New bike name">
+                    <div class="input-row-pair">
+                        <div>
+                            <label class="form-label" for="newBikeFrontTireWidth">Front tire width</label>
+                            <input type="number" id="newBikeFrontTireWidth" placeholder="Width" step="0.5" aria-label="Front tire width">
+                        </div>
+                        <div>
+                            <label class="form-label" for="newBikeRearTireWidth">Rear tire (blank = same)</label>
+                            <input type="number" id="newBikeRearTireWidth" placeholder="Width" step="0.5" aria-label="Rear tire width">
+                        </div>
+                    </div>
+                    <div class="input-row-pair">
+                        <div>
+                            <label class="form-label" for="newBikeTireUnit">Tire width unit</label>
+                            <select id="newBikeTireUnit" aria-label="Tire width unit">
+                                <option value="mm">mm</option>
+                                <option value="in">inches</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="form-label" for="newBikeRimWidth">Rim internal width (mm)</label>
+                            <input type="number" id="newBikeRimWidth" placeholder="23" step="0.5" value="23" aria-label="Rim internal width">
+                        </div>
+                    </div>
+                    <div class="collapsible-section collapsible-section--collapsed" id="newBikeDetailsSection">
+                        <button type="button" class="collapsible-trigger" onclick="toggleCollapsible('newBikeDetailsSection')" aria-expanded="false" aria-controls="newBikeDetailsContent">
+                            Casing & Tubeless
+                        </button>
+                        <div class="collapsible-content" id="newBikeDetailsContent">
+                            <label class="form-label" for="newBikeCasing">Casing</label>
+                            <select id="newBikeCasing" aria-label="Casing type">
+                                <option value="endurance">Endurance</option>
+                                <option value="endurance_plus">Endurance+</option>
+                                <option value="standard">Standard</option>
+                                <option value="extralight">Extralight/Race</option>
+                            </select>
+                            <label class="toggle-label">
+                                <input type="checkbox" id="newBikeTubeless" checked>
+                                <span>Tubeless</span>
+                            </label>
+                        </div>
+                    </div>
                     <button onclick="addBike()">Add Bike</button>
                 </div>
-                <button class="btn-link" onclick="toggleAddBike()">+ New Bike</button>
+                <button id="addBikeToggle" class="btn-link" onclick="toggleAddBike()">+ New Bike</button>
             </div>
             <div class="manage-section">
                 <h3>Setups <span id="setupBikeLabel"></span></h3>
-                <div id="setupList" class="item-list"></div>
+                <div id="setupGuidance" class="manage-guidance">Select a bike above to manage its setups</div>
+                <div id="setupList" class="item-list" aria-label="Setup list"></div>
+                <div id="setupEmpty" class="empty-state" style="display: none;">No setups yet — add one below</div>
                 <div class="add-form" id="addSetupForm" style="display: none;">
-                    <input type="text" id="newSetupName" placeholder="Setup name (e.g. Normal, Bikepacking)">
-                    <label class="form-label">Weight unit</label>
-                    <select id="newSetupWeightUnit">
+                    <input type="text" id="newSetupName" placeholder="Setup name (e.g. Normal, Bikepacking)" aria-label="New setup name">
+                    <div class="input-row-pair">
+                        <div>
+                            <label class="form-label" for="newSetupRiderWeight">Rider weight</label>
+                            <input type="number" id="newSetupRiderWeight" placeholder="Weight" step="0.5" aria-label="Rider weight">
+                        </div>
+                        <div>
+                            <label class="form-label" for="newSetupBikeWeight">Bike weight</label>
+                            <input type="number" id="newSetupBikeWeight" placeholder="Weight" step="0.1" aria-label="Bike weight">
+                        </div>
+                    </div>
+                    <label class="form-label" for="newSetupWeightUnit">Weight unit</label>
+                    <select id="newSetupWeightUnit" aria-label="Weight unit">
                         <option value="lbs">lbs</option>
                         <option value="kg">kg</option>
                     </select>
-                    <label class="form-label">Rider weight</label>
-                    <input type="number" id="newSetupRiderWeight" placeholder="Weight" step="0.5">
-                    <label class="form-label">Bike weight</label>
-                    <input type="number" id="newSetupBikeWeight" placeholder="Weight" step="0.1">
-                    <label class="form-label">Front luggage weight</label>
-                    <input type="number" id="newSetupFrontLuggage" placeholder="0" step="0.1">
-                    <label class="form-label">Rear luggage weight</label>
-                    <input type="number" id="newSetupRearLuggage" placeholder="0" step="0.1">
-                    <label class="form-label">Frame load (splits equally front/rear)</label>
-                    <input type="number" id="newSetupFrameLoad" placeholder="0" step="0.1">
-                    <label class="form-label">Bike type</label>
-                    <select id="newSetupBikeType">
-                        <option value="gravel">Gravel / Hardtail XC</option>
-                        <option value="road">Road</option>
-                        <option value="mountain">Mountain (Full Sus / Slack Geo)</option>
-                    </select>
-                    <label class="form-label">Rider height / Frame size</label>
-                    <select id="newSetupFrameSize">
-                        <option value="medium">Medium (5'5"–6'0" / 165–182cm)</option>
-                        <option value="small">Small (under 5'6" / 168cm)</option>
-                        <option value="tall">Tall (over 6'0" / 182cm)</option>
-                    </select>
-                    <label class="form-label">Riding position</label>
-                    <select id="newSetupRidingPosition">
-                        <option value="intermediate">Intermediate</option>
-                        <option value="upright">Upright</option>
-                        <option value="low">Low / Stretched out</option>
-                        <option value="aero">Aero / Flat back</option>
-                    </select>
-                    <label class="form-label">Terrain</label>
-                    <select id="newSetupSurface">
-                        <option value="smooth_gravel">Smooth gravel</option>
-                        <option value="smooth_asphalt">Smooth asphalt</option>
-                        <option value="rough_asphalt">Rough asphalt</option>
-                        <option value="coarse_gravel">Coarse gravel</option>
-                        <option value="rough_gravel">Rough gravel / Large rocks</option>
-                        <option value="mixed_paved_gravel">Mixed paved/gravel</option>
-                        <option value="singletrack">Singletrack / Mountain</option>
-                    </select>
+                    <div class="collapsible-section collapsible-section--collapsed" id="newSetupLuggageSection">
+                        <button type="button" class="collapsible-trigger" onclick="toggleCollapsible('newSetupLuggageSection')" aria-expanded="false" aria-controls="newSetupLuggageContent">
+                            Luggage & Load
+                        </button>
+                        <div class="collapsible-content" id="newSetupLuggageContent">
+                            <div class="input-row-pair">
+                                <div>
+                                    <label class="form-label" for="newSetupFrontLuggage">Front luggage</label>
+                                    <input type="number" id="newSetupFrontLuggage" placeholder="0" step="0.1" aria-label="Front luggage weight">
+                                </div>
+                                <div>
+                                    <label class="form-label" for="newSetupRearLuggage">Rear luggage</label>
+                                    <input type="number" id="newSetupRearLuggage" placeholder="0" step="0.1" aria-label="Rear luggage weight">
+                                </div>
+                            </div>
+                            <label class="form-label" for="newSetupFrameLoad">Frame load (splits equally front/rear)</label>
+                            <input type="number" id="newSetupFrameLoad" placeholder="0" step="0.1" aria-label="Frame load weight">
+                        </div>
+                    </div>
+                    <div class="collapsible-section collapsible-section--collapsed" id="newSetupPositionSection">
+                        <button type="button" class="collapsible-trigger" onclick="toggleCollapsible('newSetupPositionSection')" aria-expanded="false" aria-controls="newSetupPositionContent">
+                            Position & Terrain
+                        </button>
+                        <div class="collapsible-content" id="newSetupPositionContent">
+                            <label class="form-label" for="newSetupBikeType">Bike type</label>
+                            <select id="newSetupBikeType" aria-label="Bike type">
+                                <option value="gravel">Gravel / Hardtail XC</option>
+                                <option value="road">Road</option>
+                                <option value="mountain">Mountain (Full Sus / Slack Geo)</option>
+                            </select>
+                            <div class="input-row-pair">
+                                <div>
+                                    <label class="form-label" for="newSetupFrameSize">Frame size</label>
+                                    <select id="newSetupFrameSize" aria-label="Frame size">
+                                        <option value="medium">Medium (5'5"–6'0" / 165–182cm)</option>
+                                        <option value="small">Small (under 5'6" / 168cm)</option>
+                                        <option value="tall">Tall (over 6'0" / 182cm)</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label class="form-label" for="newSetupRidingPosition">Riding position</label>
+                                    <select id="newSetupRidingPosition" aria-label="Riding position">
+                                        <option value="intermediate">Intermediate</option>
+                                        <option value="upright">Upright</option>
+                                        <option value="low">Low / Stretched out</option>
+                                        <option value="aero">Aero / Flat back</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <label class="form-label" for="newSetupSurface">Terrain</label>
+                            <select id="newSetupSurface" aria-label="Terrain">
+                                <option value="smooth_gravel">Smooth gravel</option>
+                                <option value="smooth_asphalt">Smooth asphalt</option>
+                                <option value="rough_asphalt">Rough asphalt</option>
+                                <option value="coarse_gravel">Coarse gravel</option>
+                                <option value="rough_gravel">Rough gravel / Large rocks</option>
+                                <option value="mixed_paved_gravel">Mixed paved/gravel</option>
+                                <option value="singletrack">Singletrack / Mountain</option>
+                            </select>
+                        </div>
+                    </div>
                     <button onclick="addSetup()">Add Setup</button>
                 </div>
-                <button class="btn-link" onclick="toggleAddSetup()">+ New Setup</button>
+                <button id="addSetupToggle" class="btn-link" onclick="toggleAddSetup()">+ New Setup</button>
             </div>
         </div>
 
         <!-- Saved pressures (above calculator) -->
-        <div id="history" class="history" style="display: none;">
+        <div id="history" class="history" style="display: none;" role="region" aria-label="Saved pressures">
             <div class="history-header">
                 <h2>Saved Pressures</h2>
                 <span class="history-count" id="historyCount"></span>
@@ -168,149 +225,165 @@
                 <span class="calculator-serial">SYS::CALC ◇ +</span>
             </div>
 
-            <div class="input-row-pair">
-                <div class="input-group">
-                    <label for="frontTireWidth">Front Tire Width</label>
-                    <div class="calc-input-row">
-                        <input type="number" id="frontTireWidth" min="1" step="0.5" placeholder="Width">
-                        <select id="tireUnit">
-                            <option value="mm">mm</option>
-                            <option value="in">in</option>
+            <form id="calcForm" onsubmit="handleCalculate(event)">
+                <div class="input-row-pair">
+                    <div class="input-group">
+                        <label for="frontTireWidth">Front Tire Width</label>
+                        <div class="calc-input-row">
+                            <input type="number" id="frontTireWidth" min="1" step="0.5" placeholder="Width" aria-label="Front tire width">
+                            <select id="tireUnit" aria-label="Tire width unit">
+                                <option value="mm">mm</option>
+                                <option value="in">in</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="input-group">
+                        <label for="rearTireWidth">Rear Tire Width</label>
+                        <div class="calc-input-row">
+                            <input type="number" id="rearTireWidth" min="1" step="0.5" placeholder="Same as front" aria-label="Rear tire width">
+                            <span class="unit-label" id="rearTireUnit">mm</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="input-row-pair">
+                    <div class="input-group">
+                        <label for="rimWidth">Rim Internal Width</label>
+                        <div class="calc-input-row">
+                            <input type="number" id="rimWidth" min="13" step="0.5" value="23" placeholder="23" aria-label="Rim internal width">
+                            <span class="unit-label">mm</span>
+                        </div>
+                    </div>
+                    <div class="input-group">
+                        <label for="casingType">Casing</label>
+                        <select id="casingType" aria-label="Casing type">
+                            <option value="endurance">Endurance</option>
+                            <option value="endurance_plus">Endurance+</option>
+                            <option value="standard">Standard</option>
+                            <option value="extralight">Extralight/Race</option>
                         </select>
                     </div>
                 </div>
-                <div class="input-group">
-                    <label for="rearTireWidth">Rear Tire Width</label>
-                    <div class="calc-input-row">
-                        <input type="number" id="rearTireWidth" min="1" step="0.5" placeholder="Same as front">
-                        <span class="unit-label" id="rearTireUnit">mm</span>
+
+                <div class="input-row-pair">
+                    <div class="input-group">
+                        <label class="toggle-label">
+                            <input type="checkbox" id="isTubeless" checked>
+                            <span>Tubeless</span>
+                        </label>
                     </div>
-                </div>
-            </div>
-
-            <div class="input-row-pair">
-                <div class="input-group">
-                    <label for="rimWidth">Rim Internal Width</label>
-                    <div class="calc-input-row">
-                        <input type="number" id="rimWidth" min="13" step="0.5" value="23" placeholder="23">
-                        <span class="unit-label">mm</span>
-                    </div>
-                </div>
-                <div class="input-group">
-                    <label for="casingType">Casing</label>
-                    <select id="casingType">
-                        <option value="endurance">Endurance</option>
-                        <option value="endurance_plus">Endurance+</option>
-                        <option value="standard">Standard</option>
-                        <option value="extralight">Extralight/Race</option>
-                    </select>
-                </div>
-            </div>
-
-            <div class="input-row-pair">
-                <div class="input-group">
-                    <label class="toggle-label">
-                        <input type="checkbox" id="isTubeless" checked>
-                        <span>Tubeless</span>
-                    </label>
-                </div>
-                <div class="input-group">
-                    <label for="bikeType">Bike Type</label>
-                    <select id="bikeType">
-                        <option value="gravel">Gravel / Hardtail XC</option>
-                        <option value="road">Road</option>
-                        <option value="mountain">Mountain (Full Sus / Slack Geo)</option>
-                    </select>
-                </div>
-            </div>
-
-            <div class="input-row-pair">
-                <div class="input-group">
-                    <label for="riderWeight">Rider Weight</label>
-                    <div class="calc-input-row">
-                        <input type="number" id="riderWeight" min="1" step="0.5" placeholder="Weight">
-                        <select id="weightUnit">
-                            <option value="lbs">lbs</option>
-                            <option value="kg">kg</option>
+                    <div class="input-group">
+                        <label for="bikeType">Bike Type</label>
+                        <select id="bikeType" aria-label="Bike type">
+                            <option value="gravel">Gravel / Hardtail XC</option>
+                            <option value="road">Road</option>
+                            <option value="mountain">Mountain (Full Sus / Slack Geo)</option>
                         </select>
                     </div>
                 </div>
-                <div class="input-group">
-                    <label for="bikeWeight">Bike Weight</label>
-                    <div class="calc-input-row">
-                        <input type="number" id="bikeWeight" min="1" step="0.1" placeholder="Weight">
-                        <span class="unit-label" id="bikeWeightUnit">lbs</span>
+
+                <div class="input-row-pair">
+                    <div class="input-group">
+                        <label for="riderWeight">Rider Weight</label>
+                        <div class="calc-input-row">
+                            <input type="number" id="riderWeight" min="1" step="0.5" placeholder="Weight" aria-label="Rider weight">
+                            <select id="weightUnit" aria-label="Weight unit">
+                                <option value="lbs">lbs</option>
+                                <option value="kg">kg</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="input-group">
+                        <label for="bikeWeight">Bike Weight</label>
+                        <div class="calc-input-row">
+                            <input type="number" id="bikeWeight" min="1" step="0.1" placeholder="Weight" aria-label="Bike weight">
+                            <span class="unit-label" id="bikeWeightUnit">lbs</span>
+                        </div>
                     </div>
                 </div>
-            </div>
 
-            <div class="input-row-pair">
-                <div class="input-group">
-                    <label for="frontLuggage">Front Luggage</label>
-                    <div class="calc-input-row">
-                        <input type="number" id="frontLuggage" min="0" step="0.1" value="0" placeholder="0">
-                        <span class="unit-label" id="frontLuggageUnit">lbs</span>
+                <!-- Collapsible: Luggage & Frame Load -->
+                <div class="collapsible-section collapsible-section--collapsed" id="luggageSection">
+                    <button type="button" class="collapsible-trigger" onclick="toggleCollapsible('luggageSection')" aria-expanded="false" aria-controls="luggageContent">
+                        Luggage & Frame Load
+                    </button>
+                    <div class="collapsible-content" id="luggageContent">
+                        <div class="input-row-pair">
+                            <div class="input-group">
+                                <label for="frontLuggage">Front Luggage</label>
+                                <div class="calc-input-row">
+                                    <input type="number" id="frontLuggage" min="0" step="0.1" value="0" placeholder="0" aria-label="Front luggage weight">
+                                    <span class="unit-label" id="frontLuggageUnit">lbs</span>
+                                </div>
+                            </div>
+                            <div class="input-group">
+                                <label for="rearLuggage">Rear Luggage</label>
+                                <div class="calc-input-row">
+                                    <input type="number" id="rearLuggage" min="0" step="0.1" value="0" placeholder="0" aria-label="Rear luggage weight">
+                                    <span class="unit-label" id="rearLuggageUnit">lbs</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="input-group">
+                            <label for="frameLoad">Frame Load (splits equally front/rear)</label>
+                            <div class="calc-input-row">
+                                <input type="number" id="frameLoad" min="0" step="0.1" value="0" placeholder="0" aria-label="Frame load weight">
+                                <span class="unit-label" id="frameLoadUnit">lbs</span>
+                            </div>
+                        </div>
                     </div>
                 </div>
-                <div class="input-group">
-                    <label for="rearLuggage">Rear Luggage</label>
-                    <div class="calc-input-row">
-                        <input type="number" id="rearLuggage" min="0" step="0.1" value="0" placeholder="0">
-                        <span class="unit-label" id="rearLuggageUnit">lbs</span>
+
+                <!-- Collapsible: Rider Position & Terrain -->
+                <div class="collapsible-section collapsible-section--collapsed" id="positionSection">
+                    <button type="button" class="collapsible-trigger" onclick="toggleCollapsible('positionSection')" aria-expanded="false" aria-controls="positionContent">
+                        Rider Position & Terrain
+                    </button>
+                    <div class="collapsible-content" id="positionContent">
+                        <div class="input-row-pair">
+                            <div class="input-group">
+                                <label for="frameSize">Rider Height / Frame Size</label>
+                                <select id="frameSize" aria-label="Frame size">
+                                    <option value="medium">Medium (5'5"–6'0" / 165–182cm)</option>
+                                    <option value="small">Small (under 5'6" / 168cm)</option>
+                                    <option value="tall">Tall (over 6'0" / 182cm)</option>
+                                </select>
+                            </div>
+                            <div class="input-group">
+                                <label for="ridingPosition">Riding Position</label>
+                                <select id="ridingPosition" aria-label="Riding position">
+                                    <option value="intermediate">Intermediate</option>
+                                    <option value="upright">Upright</option>
+                                    <option value="low">Low / Stretched</option>
+                                    <option value="aero">Aero / Flat back</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="input-group">
+                            <label for="surfaceType">Terrain</label>
+                            <select id="surfaceType" aria-label="Terrain">
+                                <option value="smooth_gravel">Smooth gravel</option>
+                                <option value="smooth_asphalt">Smooth asphalt</option>
+                                <option value="rough_asphalt">Rough asphalt</option>
+                                <option value="coarse_gravel">Coarse gravel</option>
+                                <option value="rough_gravel">Rough gravel / Large rocks</option>
+                                <option value="mixed_paved_gravel">Mixed paved/gravel</option>
+                                <option value="singletrack">Singletrack / Mountain</option>
+                            </select>
+                        </div>
                     </div>
                 </div>
-            </div>
 
-            <div class="input-group">
-                <label for="frameLoad">Frame Load (splits equally front/rear)</label>
-                <div class="calc-input-row">
-                    <input type="number" id="frameLoad" min="0" step="0.1" value="0" placeholder="0">
-                    <span class="unit-label" id="frameLoadUnit">lbs</span>
-                </div>
-            </div>
+                <button id="calculateBtn" class="calculate-btn" type="submit">Calculate</button>
+            </form>
 
-            <div class="input-row-pair">
-                <div class="input-group">
-                    <label for="frameSize">Rider Height / Frame Size</label>
-                    <select id="frameSize">
-                        <option value="medium">Medium (5'5"–6'0" / 165–182cm)</option>
-                        <option value="small">Small (under 5'6" / 168cm)</option>
-                        <option value="tall">Tall (over 6'0" / 182cm)</option>
-                    </select>
-                </div>
-                <div class="input-group">
-                    <label for="ridingPosition">Riding Position</label>
-                    <select id="ridingPosition">
-                        <option value="intermediate">Intermediate</option>
-                        <option value="upright">Upright</option>
-                        <option value="low">Low / Stretched</option>
-                        <option value="aero">Aero / Flat back</option>
-                    </select>
-                </div>
-            </div>
-
-            <div class="input-group">
-                <label for="surfaceType">Terrain</label>
-                <select id="surfaceType">
-                    <option value="smooth_gravel">Smooth gravel</option>
-                    <option value="smooth_asphalt">Smooth asphalt</option>
-                    <option value="rough_asphalt">Rough asphalt</option>
-                    <option value="coarse_gravel">Coarse gravel</option>
-                    <option value="rough_gravel">Rough gravel / Large rocks</option>
-                    <option value="mixed_paved_gravel">Mixed paved/gravel</option>
-                    <option value="singletrack">Singletrack / Mountain</option>
-                </select>
-            </div>
-
-            <button id="calculateBtn" class="calculate-btn">Calculate</button>
-
-            <div id="results" class="results" style="display: none;">
+            <div id="results" class="results" style="display: none;" aria-live="polite" aria-atomic="true">
                 <div class="results-header">
                     <h2>Recommended Pressure</h2>
                     <span class="results-serial">OUTPUT ◇ +</span>
                 </div>
                 <div class="pressure-grid">
-                    <div class="pressure-card">
+                    <div class="pressure-card" id="frontCard" onclick="copyPressure('front')" role="button" tabindex="0" aria-label="Front pressure, tap to copy">
                         <div class="pressure-card-label">Front</div>
                         <div class="pressure-card-value">
                             <span class="value" id="frontPsi">--</span>
@@ -320,8 +393,9 @@
                             <span class="value-bar" id="frontBar">--</span>
                             <span class="value-unit-small">bar</span>
                         </div>
+                        <span class="copy-hint">tap to copy</span>
                     </div>
-                    <div class="pressure-card">
+                    <div class="pressure-card" id="rearCard" onclick="copyPressure('rear')" role="button" tabindex="0" aria-label="Rear pressure, tap to copy">
                         <div class="pressure-card-label">Rear</div>
                         <div class="pressure-card-value">
                             <span class="value" id="rearPsi">--</span>
@@ -331,11 +405,15 @@
                             <span class="value-bar" id="rearBar">--</span>
                             <span class="value-unit-small">bar</span>
                         </div>
+                        <span class="copy-hint">tap to copy</span>
                     </div>
                 </div>
                 <button id="saveBtn" class="btn-link save-btn" style="display: none;" onclick="savePressure()">Save this result</button>
             </div>
         </div>
+
+        <!-- Toast container -->
+        <div id="toastContainer" class="toast-container" role="alert" aria-live="polite" aria-atomic="true"></div>
     </div>
 
     <script src="script.js"></script>
