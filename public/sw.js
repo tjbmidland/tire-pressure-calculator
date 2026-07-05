@@ -1,8 +1,11 @@
-const CACHE_NAME = 'tire-pressure-v7';
+const CACHE_NAME = 'tire-pressure-v8';
 const STATIC_ASSETS = [
   '/styles.css',
   '/script.js',
   '/manifest.json',
+  '/icon-192.png',
+  '/icon-512.png',
+  '/assets/patterns/app-icon.svg',
   '/assets/patterns/dither.svg',
   '/assets/patterns/lattice.svg',
   '/assets/patterns/registration.svg',

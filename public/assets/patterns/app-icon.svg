@@ -1,0 +1,56 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1024" height="1024" viewBox="0 0 1024 1024">
+<rect width="1024" height="1024" fill="#000"/>
+<rect x="112" y="112" width="800" height="800" fill="#EA027E"/>
+<rect x="112" y="112" width="126" height="800" fill="#fff"/>
+<rect x="238" y="112" width="674" height="800" fill="none" stroke="#C2FE0B" stroke-width="8"/>
+<rect x="300" y="214" width="578" height="20" fill="#C2FE0B"/>
+<rect x="300" y="710" width="578" height="32" fill="#fff"/>
+<rect x="160" y="170" width="30" height="36" fill="#EA027E"/>
+<rect x="160" y="230" width="30" height="36" fill="#EA027E"/>
+<rect x="160" y="290" width="30" height="36" fill="#EA027E"/>
+<rect x="160" y="790" width="30" height="36" fill="#EA027E"/>
+<rect x="304" y="782" width="20" height="22" fill="#01FFFF"/>
+<rect x="338" y="782" width="20" height="22" fill="#C2FE0B"/>
+<rect x="372" y="782" width="20" height="22" fill="#C2FE0B"/>
+<rect x="406" y="782" width="20" height="22" fill="#01FFFF"/>
+<rect x="440" y="782" width="20" height="22" fill="#C2FE0B"/>
+<rect x="474" y="782" width="20" height="22" fill="#C2FE0B"/>
+<rect x="508" y="782" width="20" height="22" fill="#01FFFF"/>
+<rect x="542" y="782" width="20" height="22" fill="#C2FE0B"/>
+<rect x="576" y="782" width="20" height="22" fill="#C2FE0B"/>
+<rect x="610" y="782" width="20" height="22" fill="#01FFFF"/>
+<rect x="644" y="782" width="20" height="22" fill="#C2FE0B"/>
+<rect x="678" y="782" width="20" height="22" fill="#C2FE0B"/>
+<rect x="712" y="782" width="20" height="22" fill="#01FFFF"/>
+<rect x="746" y="782" width="20" height="22" fill="#C2FE0B"/>
+<rect x="780" y="782" width="20" height="22" fill="#C2FE0B"/>
+<g fill="#fff">
+<rect x="300" y="270" width="44" height="44"/>
+<rect x="354" y="270" width="44" height="44"/>
+<rect x="408" y="270" width="44" height="44"/>
+<rect x="462" y="270" width="44" height="44"/>
+<rect x="516" y="270" width="44" height="44"/>
+<rect x="408" y="324" width="44" height="44"/>
+<rect x="408" y="378" width="44" height="44"/>
+<rect x="408" y="432" width="44" height="44"/>
+<rect x="408" y="486" width="44" height="44"/>
+<rect x="408" y="540" width="44" height="44"/>
+<rect x="408" y="594" width="44" height="44"/>
+<rect x="618" y="270" width="44" height="44"/>
+<rect x="672" y="270" width="44" height="44"/>
+<rect x="726" y="270" width="44" height="44"/>
+<rect x="780" y="270" width="44" height="44"/>
+<rect x="618" y="324" width="44" height="44"/>
+<rect x="834" y="324" width="44" height="44"/>
+<rect x="618" y="378" width="44" height="44"/>
+<rect x="834" y="378" width="44" height="44"/>
+<rect x="618" y="432" width="44" height="44"/>
+<rect x="672" y="432" width="44" height="44"/>
+<rect x="726" y="432" width="44" height="44"/>
+<rect x="780" y="432" width="44" height="44"/>
+<rect x="618" y="486" width="44" height="44"/>
+<rect x="618" y="540" width="44" height="44"/>
+<rect x="618" y="594" width="44" height="44"/>
+</g>
+<rect x="800" y="158" width="42" height="42" fill="none" stroke="#fff" stroke-width="6"/><path d="M770 179H872M821 128V230" stroke="#fff" stroke-width="5"/>
+</svg>
