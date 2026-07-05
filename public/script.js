@@ -688,14 +688,36 @@ function findPressureById(id) {
   return historyPressures.find(p => p.id == id) || null;
 }
 
-function pressureSummary(inputs) {
-  if (!inputs) return '';
-  const tireW = inputs.frontTireWidth || '?';
+const SURFACE_LABELS = {
+  smooth_asphalt: 'Smooth asphalt',
+  rough_asphalt: 'Rough asphalt',
+  smooth_gravel: 'Smooth gravel',
+  coarse_gravel: 'Coarse gravel',
+  rough_gravel: 'Rough gravel',
+  mixed_paved_gravel: 'Mixed paved/gravel',
+  singletrack: 'Singletrack',
+};
+
+// Detail chips for a saved-pressure row: tire width, load, terrain (and luggage
+// when present). Lets you identify a row's parameters without filtering.
+function pressureDetail(inputs) {
+  if (!inputs) return [];
+  const chips = [];
   const unit = inputs.tireUnit || 'mm';
-  const riderW = inputs.riderWeight || '?';
+  const ftw = inputs.frontTireWidth;
+  const rtw = inputs.rearTireWidth;
+  if (ftw) chips.push(rtw && rtw !== ftw ? `${ftw}/${rtw}${unit}` : `${ftw}${unit}`);
   const wUnit = inputs.weightUnit || 'lbs';
-  const bike = inputs.bikeType || 'gravel';
-  return `<span class="history-summary">${tireW}${unit} · ${riderW}${wUnit} rider · ${bike}</span>`;
+  const riderW = parseFloat(inputs.riderWeight) || 0;
+  const bikeW = parseFloat(inputs.bikeWeight) || 0;
+  const lug = (parseFloat(inputs.frontLuggage) || 0) + (parseFloat(inputs.rearLuggage) || 0) + (parseFloat(inputs.frameLoad) || 0);
+  if (riderW || bikeW) {
+    let load = `${riderW}+${bikeW}${wUnit}`;
+    if (lug) load += ` · +${lug}${wUnit} load`;
+    chips.push(load);
+  }
+  if (inputs.surfaceType) chips.push(SURFACE_LABELS[inputs.surfaceType] || inputs.surfaceType);
+  return chips;
 }
 
 // Saved-pressures view — one progressively-filtered, collapsible list that lives
@@ -755,21 +777,23 @@ function renderSavedList() {
   applyHistoryExpanded();
 
   el.innerHTML = visible.map(p => {
-    // Show rider›bike›setup context unless the row matches the focused setup
-    // (the scope label already conveys that).
-    const showCtx = !(currentSetupId && p.setup_id == currentSetupId);
-    const ctx = showCtx && p.rider_name && p.bike_name && p.setup_name
+    // Always show rider›bike›setup as the primary identifier so a row is
+    // self-describing regardless of the current filter scope.
+    const ctx = (p.rider_name && p.bike_name && p.setup_name)
       ? `<span class="saved-context">${escapeHtml(p.rider_name)} <span class="ctx-sep">›</span> ${escapeHtml(p.bike_name)} <span class="ctx-sep">›</span> ${escapeHtml(p.setup_name)}</span>`
       : '';
-    const summary = pressureSummary(parsePressureInputs(p));
+    const chips = pressureDetail(parsePressureInputs(p))
+      .map(c => `<span class="history-chip">${escapeHtml(c)}</span>`).join('');
     const dateStr = new Date(p.created_at + (String(p.created_at).endsWith('Z') ? '' : 'Z')).toLocaleDateString();
     return `
-      <div class="history-item" onclick="recallPressure(${p.id})" role="button" tabindex="0" aria-label="Recall saved pressure for ${escapeHtml(p.setup_name || '')}">
-        <span class="history-pressure">${p.front_psi}/${p.rear_psi} psi</span>
-        <span class="history-date">${dateStr}</span>
-        ${ctx}
-        ${summary}
-        <button class="btn-link btn-delete" onclick="event.stopPropagation();deletePressure(${p.id})" aria-label="Delete saved pressure">×</button>
+      <div class="history-item" onclick="recallPressure(${p.id})" role="button" tabindex="0" aria-label="Recall ${p.front_psi}/${p.rear_psi} psi for ${escapeHtml(p.setup_name || '')}">
+        <div class="history-item-main">
+          <span class="history-pressure">${p.front_psi}/${p.rear_psi} psi</span>
+          ${ctx}
+          <span class="history-date">${dateStr}</span>
+          <button class="btn-link btn-delete" onclick="event.stopPropagation();deletePressure(${p.id})" aria-label="Delete saved pressure">×</button>
+        </div>
+        ${chips ? `<div class="history-item-meta">${chips}</div>` : ''}
       </div>
     `;
   }).join('');

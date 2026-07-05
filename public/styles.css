@@ -2205,3 +2205,62 @@ label {
     .history-trigger { flex-wrap: wrap; gap: var(--s2); }
     .history-scope { flex-basis: 100%; order: 3; }
 }
+
+/* ─── Richer saved-pressure rows (always show context + detail chips) ── */
+/* Two-line card: primary (pressure + rider›bike›setup + date + delete)
+   and a meta line of parameter chips. Overrides the single-line layout. */
+.history-item {
+    flex-direction: column;
+    align-items: stretch;
+    gap: var(--s1);
+    padding: var(--s3) var(--s2);
+}
+
+.history-item-main {
+    display: flex;
+    align-items: center;
+    gap: var(--s3);
+    min-width: 0;
+}
+
+/* Context is the primary identifier — give it the flex space + brightness */
+.history .saved-context {
+    flex: 1;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    color: var(--gray-200);
+    font-size: var(--sm);
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+}
+
+/* Date no longer grows; sits after context */
+.history .history-date {
+    flex: none;
+}
+
+.history-item-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--s1) var(--s2);
+    padding-left: 92px;   /* align chips under the context, past the pressure column */
+}
+
+.history-chip {
+    font-family: 'Space Mono', monospace;
+    font-size: var(--xs);
+    color: var(--gray-400);
+    letter-spacing: 0.05em;
+    border: 1px solid var(--dark-500);
+    padding: 1px var(--s2);
+    white-space: nowrap;
+}
+
+.history-chip:first-child { border-color: var(--cyan); color: var(--cyan); text-shadow: 0 0 6px var(--cyan-glow); }
+
+@media (max-width: 600px) {
+    .history-item-meta { padding-left: 0; }
+    .history .saved-context { font-size: var(--xs); }
+}
