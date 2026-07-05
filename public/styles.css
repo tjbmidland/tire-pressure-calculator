@@ -78,13 +78,13 @@ html {
 }
 
 body {
-    font-family: 'Inter', 'Helvetica Neue', Arial, sans-serif;
+    font-family: 'Chakra Petch', 'Helvetica Neue', Arial, sans-serif;
     background: var(--dark-900);
     color: var(--gray-200);
     min-height: 100vh;
     -webkit-tap-highlight-color: transparent;
     line-height: 1.6;
-    letter-spacing: 0.01em;
+    letter-spacing: 0.02em;
     position: relative;
     overflow-x: hidden;
 }
@@ -116,47 +116,6 @@ body::after {
     z-index: 9998;
 }
 
-/* ─── Typography ────────────────────────────────────────────────── */
-
-h1 {
-    font-family: 'Archivo Black', 'Impact', sans-serif;
-    font-size: var(--4xl);
-    font-weight: 400;
-    letter-spacing: -0.02em;
-    color: var(--white);
-    text-transform: uppercase;
-    line-height: 1;
-    position: relative;
-}
-
-h2 {
-    font-family: 'Archivo Black', 'Impact', sans-serif;
-    font-size: var(--xs);
-    font-weight: 400;
-    letter-spacing: 0.3em;
-    text-transform: uppercase;
-    color: var(--acid);
-    line-height: 1.4;
-}
-
-h3 {
-    font-family: 'Space Grotesk', sans-serif;
-    font-size: var(--xs);
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.2em;
-    color: var(--gray-400);
-}
-
-label {
-    font-family: 'Space Grotesk', sans-serif;
-    font-size: 0.55rem;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.2em;
-    color: var(--gray-400);
-}
-
 /* ─── Container ─────────────────────────────────────────────────── */
 
 .container {
@@ -181,20 +140,21 @@ label {
 
 header {
     margin-bottom: var(--s7);
-    padding-bottom: var(--s5);
+    padding-bottom: var(--s6);
     border-bottom: 1px solid var(--dark-400);
     position: relative;
+    text-align: center;
 }
 
-/* Multi-line accent — Marathon style */
 header::after {
     content: '';
     position: absolute;
     bottom: -1px;
-    left: 0;
-    width: 120px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 200px;
     height: 1px;
-    background: var(--acid);
+    background: linear-gradient(90deg, transparent, var(--acid), var(--cyan), var(--acid), transparent);
     box-shadow: 0 0 16px var(--acid-glow), 0 0 40px var(--acid-faint);
 }
 
@@ -202,58 +162,75 @@ header::after {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: var(--s2);
+    margin-bottom: var(--s5);
 }
 
 .header-mark {
     font-family: 'Space Mono', monospace;
     font-size: var(--xs);
     color: var(--gray-500);
-    letter-spacing: 0.3em;
+    letter-spacing: 0.4em;
 }
 
 .header-serial {
     font-family: 'Space Mono', monospace;
     font-size: var(--xs);
     color: var(--dark-300);
-    letter-spacing: 0.15em;
-}
-
-.subtitle {
-    font-family: 'Cormorant Garamond', 'Georgia', serif;
-    font-style: italic;
-    font-size: var(--lg);
-    color: var(--acid);
-    letter-spacing: 0.02em;
-    margin-top: var(--s2);
-}
-
-/* ─── Section Divider ───────────────────────────────────────────── */
-
-.section-divider {
-    display: flex;
-    align-items: center;
-    gap: var(--s3);
-    margin: var(--s6) 0 var(--s4);
-    font-family: 'Space Mono', monospace;
-    font-size: var(--xs);
-    color: var(--gray-500);
     letter-spacing: 0.2em;
+}
+
+/* Chrome title — Marathon metallic effect */
+h1 {
+    font-family: 'Orbitron', sans-serif;
+    font-size: clamp(3.5rem, 12vw, 7rem);
+    font-weight: 900;
+    letter-spacing: 0.15em;
     text-transform: uppercase;
+    line-height: 0.85;
+    /* Chrome gradient */
+    background: linear-gradient(180deg,
+        var(--white) 0%,
+        var(--gray-300) 20%,
+        var(--acid) 45%,
+        var(--white) 50%,
+        var(--gray-300) 55%,
+        var(--acid) 80%,
+        var(--white) 100%
+    );
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    filter: drop-shadow(0 0 30px var(--acid-glow)) drop-shadow(0 0 60px rgba(194,254,11,0.15));
+    position: relative;
 }
 
-.section-divider::before,
-.section-divider::after {
-    content: '';
-    flex: 1;
-    height: 1px;
-    background: var(--dark-400);
+h2 {
+    font-family: 'Orbitron', sans-serif;
+    font-size: var(--xs);
+    font-weight: 700;
+    letter-spacing: 0.4em;
+    text-transform: uppercase;
+    color: var(--acid);
+    line-height: 1.4;
+    text-shadow: 0 0 10px var(--acid-glow);
 }
 
-.section-divider::before {
-    background: linear-gradient(90deg, var(--acid), var(--dark-400));
-    width: 40px;
-    flex: none;
+h3 {
+    font-family: 'Chakra Petch', sans-serif;
+    font-size: var(--xs);
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.25em;
+    color: var(--gray-400);
+}
+
+label {
+    font-family: 'Chakra Petch', sans-serif;
+    font-size: 0.55rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.25em;
+    color: var(--gray-400);
 }
 
 /* ─── Onboarding ────────────────────────────────────────────────── */
@@ -274,7 +251,7 @@ header::after {
     font-size: var(--xs);
     color: var(--gray-500);
     text-transform: uppercase;
-    letter-spacing: 0.5em;
+    letter-spacing: 0.6em;
     text-align: center;
     padding: var(--s1) 0;
 }
@@ -294,7 +271,6 @@ header::after {
     overflow: hidden;
 }
 
-/* Acid edge — Marathon accent bar */
 .onboarding-btn::before {
     content: '';
     position: absolute;
@@ -307,7 +283,6 @@ header::after {
     transition: width var(--normal);
 }
 
-/* Registration mark */
 .onboarding-btn::after {
     content: '+ ◇';
     position: absolute;
@@ -352,15 +327,16 @@ header::after {
 }
 
 .onboarding-label {
-    font-family: 'Archivo Black', 'Impact', sans-serif;
+    font-family: 'Orbitron', sans-serif;
     font-size: var(--md);
+    font-weight: 700;
     text-transform: uppercase;
-    letter-spacing: 0.12em;
+    letter-spacing: 0.15em;
     color: var(--white);
 }
 
 .onboarding-desc {
-    font-family: 'Space Grotesk', sans-serif;
+    font-family: 'Chakra Petch', sans-serif;
     font-size: var(--sm);
     color: var(--gray-400);
     line-height: 1.5;
@@ -379,7 +355,6 @@ header::after {
     position: relative;
 }
 
-/* Fiducial marker */
 .profile-bar::before {
     content: '◇';
     position: absolute;
@@ -418,7 +393,7 @@ header::after {
     background: var(--dark-700);
     color: var(--white);
     border: 1px solid var(--dark-400);
-    font-family: 'Space Grotesk', sans-serif;
+    font-family: 'Chakra Petch', sans-serif;
     font-size: var(--base);
     font-weight: 500;
     cursor: pointer;
@@ -426,6 +401,7 @@ header::after {
     appearance: none;
     border-radius: 0;
     transition: all var(--fast);
+    letter-spacing: 0.05em;
 }
 
 .profile-selects select:disabled {
@@ -443,11 +419,11 @@ header::after {
     border: none;
     color: var(--acid);
     cursor: pointer;
-    font-family: 'Space Grotesk', sans-serif;
+    font-family: 'Chakra Petch', sans-serif;
     font-size: var(--sm);
-    font-weight: 700;
+    font-weight: 600;
     text-transform: uppercase;
-    letter-spacing: 0.15em;
+    letter-spacing: 0.2em;
     padding: var(--s1) 0;
     white-space: nowrap;
     transition: all var(--fast);
@@ -481,7 +457,6 @@ header::after {
     position: relative;
 }
 
-/* Registration marks — all four corners */
 .manage-panel::before {
     content: '+  ◇  +';
     position: absolute;
@@ -582,7 +557,7 @@ header::after {
     background: var(--dark-700);
     color: var(--white);
     border: 1px solid var(--dark-400);
-    font-family: 'Space Grotesk', sans-serif;
+    font-family: 'Chakra Petch', sans-serif;
     font-size: var(--base);
     border-radius: 0;
     transition: all var(--fast);
@@ -599,11 +574,11 @@ header::after {
     background: var(--acid);
     color: var(--black);
     border: 1px solid var(--acid);
-    font-family: 'Space Grotesk', sans-serif;
+    font-family: 'Chakra Petch', sans-serif;
     font-size: var(--sm);
-    font-weight: 700;
+    font-weight: 600;
     text-transform: uppercase;
-    letter-spacing: 0.15em;
+    letter-spacing: 0.2em;
     cursor: pointer;
     transition: all var(--fast);
 }
@@ -643,7 +618,7 @@ header::after {
     background: var(--dark-700);
     color: var(--white);
     border: 1px solid var(--dark-400);
-    font-family: 'Space Grotesk', sans-serif;
+    font-family: 'Chakra Petch', sans-serif;
     font-size: var(--base);
     border-radius: 0;
     transition: all var(--fast);
@@ -661,11 +636,11 @@ header::after {
     background: var(--acid);
     color: var(--black);
     border: 1px solid var(--acid);
-    font-family: 'Space Grotesk', sans-serif;
+    font-family: 'Chakra Petch', sans-serif;
     font-size: var(--sm);
-    font-weight: 700;
+    font-weight: 600;
     text-transform: uppercase;
-    letter-spacing: 0.15em;
+    letter-spacing: 0.2em;
     cursor: pointer;
     margin-top: var(--s2);
     transition: all var(--fast);
@@ -679,10 +654,10 @@ header::after {
 
 .form-label {
     font-size: 0.5rem;
-    font-weight: 700;
+    font-weight: 600;
     color: var(--gray-500);
     text-transform: uppercase;
-    letter-spacing: 0.25em;
+    letter-spacing: 0.3em;
     margin-top: var(--s1);
 }
 
@@ -732,7 +707,7 @@ header::after {
     font-family: 'Space Mono', monospace;
     font-size: var(--xs);
     color: var(--cyan);
-    letter-spacing: 0.15em;
+    letter-spacing: 0.2em;
     text-shadow: 0 0 8px var(--cyan-glow);
 }
 
@@ -798,7 +773,6 @@ header::after {
     position: relative;
 }
 
-/* Multi-color accent bar — acid/cyan/red */
 .calculator::before {
     content: '';
     position: absolute;
@@ -814,7 +788,6 @@ header::after {
     box-shadow: 0 0 12px var(--acid-glow);
 }
 
-/* Registration marks */
 .calculator::after {
     content: '+  CALC  ◇  +';
     position: absolute;
@@ -836,11 +809,11 @@ header::after {
 }
 
 .calculator-label {
-    font-family: 'Space Grotesk', sans-serif;
+    font-family: 'Orbitron', sans-serif;
     font-size: var(--xs);
     font-weight: 700;
     text-transform: uppercase;
-    letter-spacing: 0.3em;
+    letter-spacing: 0.4em;
     color: var(--gray-400);
 }
 
@@ -848,7 +821,7 @@ header::after {
     font-family: 'Space Mono', monospace;
     font-size: var(--xs);
     color: var(--dark-300);
-    letter-spacing: 0.15em;
+    letter-spacing: 0.2em;
 }
 
 .input-group {
@@ -866,7 +839,7 @@ header::after {
     background: var(--dark-700);
     color: var(--white);
     border: 1px solid var(--dark-400);
-    font-family: 'Space Grotesk', sans-serif;
+    font-family: 'Chakra Petch', sans-serif;
     font-size: var(--md);
     -webkit-appearance: none;
     appearance: none;
@@ -916,7 +889,7 @@ header::after {
     background: var(--dark-600);
     color: var(--white);
     border: 1px solid var(--dark-400);
-    font-family: 'Space Grotesk', sans-serif;
+    font-family: 'Chakra Petch', sans-serif;
     font-size: var(--sm);
     -webkit-appearance: none;
     appearance: none;
@@ -980,20 +953,18 @@ header::after {
     background: var(--acid);
     color: var(--black);
     border: 1px solid var(--acid);
-    font-family: 'Archivo Black', 'Impact', sans-serif;
+    font-family: 'Orbitron', sans-serif;
     font-size: var(--base);
-    font-weight: 400;
+    font-weight: 800;
     text-transform: uppercase;
-    letter-spacing: 0.3em;
+    letter-spacing: 0.4em;
     cursor: pointer;
     margin-top: var(--s3);
     transition: all var(--normal);
     position: relative;
     overflow: hidden;
-    text-shadow: 0 1px 0 rgba(0,0,0,0.1);
 }
 
-/* Red accent stripe */
 .calculate-btn::after {
     content: '';
     position: absolute;
@@ -1052,10 +1023,9 @@ header::after {
     font-family: 'Space Mono', monospace;
     font-size: var(--xs);
     color: var(--dark-300);
-    letter-spacing: 0.15em;
+    letter-spacing: 0.2em;
 }
 
-/* Pressure grid */
 .pressure-grid {
     display: grid;
     grid-template-columns: 1fr 1fr;
@@ -1070,7 +1040,6 @@ header::after {
     transition: all var(--normal);
 }
 
-/* Acid left edge */
 .pressure-card::before {
     content: '';
     position: absolute;
@@ -1082,7 +1051,6 @@ header::after {
     box-shadow: 0 0 10px var(--acid-glow);
 }
 
-/* Registration mark */
 .pressure-card::after {
     content: '+ ◇';
     position: absolute;
@@ -1101,11 +1069,11 @@ header::after {
 }
 
 .pressure-card-label {
-    font-family: 'Space Grotesk', sans-serif;
+    font-family: 'Orbitron', sans-serif;
     font-size: var(--xs);
     font-weight: 700;
     text-transform: uppercase;
-    letter-spacing: 0.3em;
+    letter-spacing: 0.4em;
     color: var(--gray-400);
     margin-bottom: var(--s3);
 }
@@ -1118,19 +1086,20 @@ header::after {
 }
 
 .pressure-card-value .value {
-    font-family: 'Space Mono', monospace;
+    font-family: 'Orbitron', sans-serif;
     font-size: var(--6xl);
-    font-weight: 700;
+    font-weight: 900;
     color: var(--white);
     line-height: 1;
-    letter-spacing: -0.04em;
+    letter-spacing: -0.02em;
     font-variant-numeric: tabular-nums;
-    text-shadow: 0 0 40px rgba(255,255,255,0.15), 0 0 80px rgba(194,254,11,0.05);
+    text-shadow: 0 0 40px rgba(255,255,255,0.15), 0 0 80px rgba(194,254,11,0.08);
 }
 
 .pressure-card-value .value-unit {
-    font-family: 'Space Grotesk', sans-serif;
+    font-family: 'Orbitron', sans-serif;
     font-size: var(--sm);
+    font-weight: 600;
     color: var(--acid);
     text-transform: uppercase;
     letter-spacing: 0.2em;
@@ -1152,11 +1121,11 @@ header::after {
 }
 
 .pressure-card-secondary .value-unit-small {
-    font-family: 'Space Grotesk', sans-serif;
+    font-family: 'Chakra Petch', sans-serif;
     font-size: var(--xs);
     color: var(--gray-500);
     text-transform: uppercase;
-    letter-spacing: 0.15em;
+    letter-spacing: 0.2em;
 }
 
 .save-btn {
@@ -1169,29 +1138,24 @@ header::after {
 
 @keyframes glitch {
     0% { transform: translate(0); clip-path: inset(0 0 0 0); }
-    10% { transform: translate(-2px, 1px); clip-path: inset(20% 0 60% 0); }
-    20% { transform: translate(2px, -1px); clip-path: inset(40% 0 20% 0); }
-    30% { transform: translate(-1px, 0); clip-path: inset(60% 0 10% 0); }
-    40% { transform: translate(1px, 2px); clip-path: inset(10% 0 80% 0); }
+    10% { transform: translate(-3px, 2px); clip-path: inset(20% 0 60% 0); }
+    20% { transform: translate(3px, -2px); clip-path: inset(40% 0 20% 0); }
+    30% { transform: translate(-2px, 0); clip-path: inset(60% 0 10% 0); }
+    40% { transform: translate(2px, 3px); clip-path: inset(10% 0 80% 0); }
     50% { transform: translate(0); clip-path: inset(0 0 0 0); }
     100% { transform: translate(0); clip-path: inset(0 0 0 0); }
 }
 
 @keyframes glitch-color {
-    0% { text-shadow: 2px 0 var(--cyan), -2px 0 var(--red); }
-    25% { text-shadow: -2px 0 var(--cyan), 2px 0 var(--acid); }
-    50% { text-shadow: 2px 0 var(--red), -2px 0 var(--cyan); }
-    75% { text-shadow: -1px 0 var(--acid), 1px 0 var(--red); }
-    100% { text-shadow: 2px 0 var(--cyan), -2px 0 var(--red); }
+    0% { filter: drop-shadow(3px 0 var(--cyan)) drop-shadow(-3px 0 var(--red)) drop-shadow(0 0 30px var(--acid-glow)); }
+    25% { filter: drop-shadow(-3px 0 var(--cyan)) drop-shadow(3px 0 var(--acid)) drop-shadow(0 0 30px var(--cyan-glow)); }
+    50% { filter: drop-shadow(3px 0 var(--red)) drop-shadow(-3px 0 var(--cyan)) drop-shadow(0 0 30px var(--acid-glow)); }
+    75% { filter: drop-shadow(-2px 0 var(--acid)) drop-shadow(2px 0 var(--red)) drop-shadow(0 0 30px var(--red-glow)); }
+    100% { filter: drop-shadow(3px 0 var(--cyan)) drop-shadow(-3px 0 var(--red)) drop-shadow(0 0 30px var(--acid-glow)); }
 }
 
 h1:hover {
     animation: glitch 0.4s ease-in-out, glitch-color 0.6s ease-in-out;
-}
-
-/* Ambient glitch on results */
-.pressure-card-value .value {
-    position: relative;
 }
 
 .pressure-card:hover .value {
@@ -1203,10 +1167,6 @@ h1:hover {
 @media (max-width: 600px) {
     .container {
         padding: var(--s5) var(--s4);
-    }
-
-    h1 {
-        font-size: var(--2xl);
     }
 
     .profile-selects {
@@ -1223,10 +1183,6 @@ h1:hover {
 
     .pressure-grid {
         grid-template-columns: 1fr;
-    }
-
-    .pressure-card-value .value {
-        font-size: var(--4xl);
     }
 
     .calculator {
