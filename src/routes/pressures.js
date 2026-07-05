@@ -3,16 +3,15 @@ const router = express.Router();
 const db = require('../db');
 const { calculatePressure } = require('../formula');
 
-// List saved pressures.
-//   ?setup_id=<id> → pressures for one setup (plain rows)
-//   no setup_id    → ALL pressures, joined with setup/bike/rider names (global view)
+// List saved pressures, joined with setup/bike/rider context.
+// Filter narrows with the query: ?setup_id → ?bike_id → ?rider_id → all.
 router.get('/', (req, res) => {
-  if (req.query.setup_id) {
-    const pressures = db.prepare(
-      'SELECT * FROM saved_pressures WHERE setup_id = ? ORDER BY created_at DESC'
-    ).all(req.query.setup_id);
-    return res.json(pressures);
-  }
+  const { setup_id, bike_id, rider_id } = req.query;
+  const where = [];
+  const params = [];
+  if (setup_id) { where.push('sp.setup_id = ?'); params.push(setup_id); }
+  if (bike_id)  { where.push('s.bike_id = ?');   params.push(bike_id); }
+  if (rider_id) { where.push('b.rider_id = ?');  params.push(rider_id); }
   const pressures = db.prepare(`
     SELECT sp.*, s.name AS setup_name, b.name AS bike_name, r.name AS rider_name,
            s.bike_id, b.rider_id
@@ -20,8 +19,9 @@ router.get('/', (req, res) => {
     JOIN setups s ON sp.setup_id = s.id
     JOIN bikes b  ON s.bike_id   = b.id
     JOIN riders r ON b.rider_id  = r.id
+    ${where.length ? 'WHERE ' + where.join(' AND ') : ''}
     ORDER BY sp.created_at DESC
-  `).all();
+  `).all(...params);
   res.json(pressures);
 });
 

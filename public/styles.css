@@ -2135,3 +2135,73 @@ label {
     .save-actions-secondary { gap: var(--s2) var(--s4); }
     .context-chip { font-size: var(--xs); }
 }
+
+/* ─── Saved-pressures section: collapsible + progressively filtered ── */
+.history { padding: 0; }            /* override top padding; trigger spans full width */
+.history::before, .history::after { content: none; }   /* drop the old header decorations */
+
+.history-trigger {
+    display: flex;
+    align-items: center;
+    gap: var(--s3);
+    width: 100%;
+    padding: var(--s3) var(--s4);
+    background: var(--dark-700);
+    border: none;
+    border-bottom: 1px solid var(--dark-400);
+    color: var(--gray-200);
+    font-family: 'Chakra Petch', sans-serif;
+    cursor: pointer;
+    transition: background var(--fast);
+    text-align: left;
+}
+.history-trigger:hover { background: var(--dark-600); }
+.history-trigger:focus-visible { outline: 1px solid var(--acid); outline-offset: -2px; }
+
+.history-title {
+    font-family: 'Orbitron', sans-serif;
+    font-size: var(--xs);
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.3em;
+    color: var(--cyan);
+    text-shadow: 0 0 8px var(--cyan-glow);
+    white-space: nowrap;
+}
+.history-scope {
+    font-family: 'Space Mono', monospace;
+    font-size: var(--xs);
+    color: var(--gray-400);
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    flex: 1;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+.history-scope .ctx-sep { color: var(--dark-300); }
+.history-scope .ctx-name { color: var(--gray-200); }
+
+.history-chevron {
+    width: 8px; height: 8px;
+    border-right: 2px solid var(--cyan);
+    border-bottom: 2px solid var(--cyan);
+    transform: rotate(45deg);
+    transition: transform var(--normal);
+    margin-top: -2px;
+    flex-shrink: 0;
+}
+.history--collapsed .history-chevron {
+    transform: rotate(-45deg);
+    margin-top: 2px;
+}
+
+.history-list { max-height: 4000px; overflow: hidden; transition: max-height var(--normal), opacity var(--normal); }
+.history--collapsed .history-list { max-height: 0; opacity: 0; }
+.history--collapsed { padding-bottom: 0; }
+
+@media (max-width: 600px) {
+    .history-trigger { flex-wrap: wrap; gap: var(--s2); }
+    .history-scope { flex-basis: 100%; order: 3; }
+}

@@ -54,7 +54,6 @@
                 <select id="setupSelect" aria-label="Select setup" disabled><option value="">Setup</option></select>
             </div>
             <div class="profile-actions">
-                <button id="savedBtn" class="btn-link" onclick="toggleSavedPanel()" aria-label="Open saved pressures">Saved</button>
                 <button id="manageBtn" class="btn-link" onclick="toggleManage()" aria-label="Open management panel">Manage</button>
             </div>
         </div>
@@ -89,13 +88,15 @@
             </div>
         </div>
 
-        <!-- Saved pressures (above calculator) -->
+        <!-- Saved pressures (above calculator) — collapsible, filters with current selection -->
         <div id="history" class="history" style="display: none;" role="region" aria-label="Saved pressures">
-            <div class="history-header">
-                <h2>Saved Pressures</h2>
+            <button id="historyTrigger" class="history-trigger" type="button" onclick="toggleHistory()" aria-expanded="true" aria-controls="historyList">
+                <span class="history-title">Saved Pressures</span>
+                <span class="history-scope" id="historyScope">All</span>
                 <span class="history-count" id="historyCount"></span>
-            </div>
-            <div id="historyList"></div>
+                <span class="history-chevron" aria-hidden="true"></span>
+            </button>
+            <div id="historyList" class="history-list"></div>
         </div>
 
         <!-- Calculator -->
@@ -304,14 +305,6 @@
                     </div>
                 </div>
             </div>
-        </div>
-
-        <!-- All saved pressures panel -->
-        <div id="savedPanel" class="manage-panel" style="display: none;" role="region" aria-label="All saved pressures">
-            <button class="manage-close" onclick="toggleSavedPanel()" aria-label="Close saved pressures panel">×</button>
-            <h3>All Saved Pressures</h3>
-            <div id="savedList" class="item-list" aria-label="All saved pressures list"></div>
-            <div id="savedEmpty" class="empty-state">No saved pressures yet — calculate and save one</div>
         </div>
 
         <!-- Name prompt modal (save-as-new flows) -->

@@ -32,7 +32,8 @@ const PRESSURE_INPUTS_PREFIX = 'tpc_pressure_inputs_';
 // Context / dirty / global-saved state (calculator-first UX)
 let loadedBikeSnapshot = null;   // calculator bike-field snapshot when a bike is loaded
 let loadedSetupSnapshot = null;  // calculator setup-field snapshot when a setup is loaded
-let allPressures = [];           // global saved-pressures list (Saved panel)
+let historyExpanded = false;      // saved-pressures section expand state
+let lastHistoryHadSetup = null;   // tracks setup-selection level for auto expand/collapse
 let promptCallback = null;       // pending name-prompt callback
 
 // ─── API helpers ───────────────────────────────────────────────────
@@ -653,18 +654,25 @@ async function loadSetups(bikeId) {
 
 // ─── History ───────────────────────────────────────────────────────
 
-async function loadHistory(setupId) {
-  if (!setupId) {
-    document.getElementById('history').style.display = 'none';
-    historyPressures = [];
-    return;
-  }
+// Saved pressures data — one progressively-filtered list (see renderSavedList).
+// Filter narrows with the current selection: setup → bike → rider → all.
+async function loadSavedPressures() {
+  let url = '/pressures';
+  const params = [];
+  if (currentSetupId) params.push(`setup_id=${currentSetupId}`);
+  else if (currentBikeId) params.push(`bike_id=${currentBikeId}`);
+  else if (currentRiderId) params.push(`rider_id=${currentRiderId}`);
+  if (params.length) url += '?' + params.join('&');
   try {
-    historyPressures = await api(`/pressures?setup_id=${setupId}`);
-    renderHistoryList();
+    historyPressures = await api(url);
+    renderSavedList();
   } catch (err) {
-    showToast('error', 'Failed to load history: ' + err.message);
+    showToast('error', 'Failed to load saved pressures: ' + err.message);
   }
+}
+
+function refreshHistory() {
+  loadSavedPressures();
 }
 
 function parsePressureInputs(p) {
@@ -677,7 +685,7 @@ function parsePressureInputs(p) {
 }
 
 function findPressureById(id) {
-  return historyPressures.find(p => p.id == id) || allPressures.find(p => p.id == id) || null;
+  return historyPressures.find(p => p.id == id) || null;
 }
 
 function pressureSummary(inputs) {
@@ -690,46 +698,67 @@ function pressureSummary(inputs) {
   return `<span class="history-summary">${tireW}${unit} · ${riderW}${wUnit} rider · ${bike}</span>`;
 }
 
-function renderHistoryList() {
-  const el = document.getElementById('historyList');
-  const visible = historyPressures.filter(p => !pendingPressureDeletes.has(p.id));
-
-  if (visible.length === 0) {
-    document.getElementById('history').style.display = 'none';
-    return;
-  }
-
-  document.getElementById('history').style.display = 'block';
-  document.getElementById('historyCount').textContent = `${visible.length} saved`;
-
-  el.innerHTML = visible.map(p => {
-    const summary = pressureSummary(parsePressureInputs(p));
-    const dateStr = new Date(p.created_at + (String(p.created_at).endsWith('Z') ? '' : 'Z')).toLocaleDateString();
-    return `
-      <div class="history-item" onclick="recallPressure(${p.id})" role="button" tabindex="0" aria-label="Recall saved pressure ${p.front_psi}/${p.rear_psi} psi">
-        <span class="history-pressure">${p.front_psi}/${p.rear_psi} psi</span>
-        <span class="history-date">${dateStr}</span>
-        ${summary}
-        <button class="btn-link btn-delete" onclick="event.stopPropagation();deletePressure(${p.id})" aria-label="Delete saved pressure">×</button>
-      </div>
-    `;
-  }).join('');
+// Saved-pressures view — one progressively-filtered, collapsible list that lives
+// where the old per-setup history sat. The header shows the current scope and
+// the list auto-filters: setup selected → that setup · bike → that bike ·
+// rider → that rider · else all.
+function historyScopeLabel() {
+  const rider = riders.find(r => r.id == currentRiderId);
+  const bike = bikes.find(b => b.id == currentBikeId);
+  const setup = setups.find(s => s.id == currentSetupId);
+  if (setup && bike && rider) return `${escapeHtml(rider.name)} <span class="ctx-sep">›</span> ${escapeHtml(bike.name)} <span class="ctx-sep">›</span> ${escapeHtml(setup.name)}`;
+  if (bike && rider) return `${escapeHtml(rider.name)} <span class="ctx-sep">›</span> ${escapeHtml(bike.name)}`;
+  if (rider) return escapeHtml(rider.name);
+  return 'All';
 }
 
-// Global "Saved" panel — every saved pressure across all setups, with context.
+// Auto expand when entering a setup-focused view; collapse for broad views.
+// User toggles persist while the setup-selection level stays the same.
+function applyHistoryExpanded() {
+  const section = document.getElementById('history');
+  const trigger = document.getElementById('historyTrigger');
+  if (!section) return;
+  const hasSetup = !!currentSetupId;
+  if (lastHistoryHadSetup !== hasSetup) {
+    historyExpanded = hasSetup;
+    lastHistoryHadSetup = hasSetup;
+  }
+  section.classList.toggle('history--collapsed', !historyExpanded);
+  if (trigger) trigger.setAttribute('aria-expanded', String(historyExpanded));
+}
+
+function toggleHistory() {
+  const section = document.getElementById('history');
+  const trigger = document.getElementById('historyTrigger');
+  if (!section) return;
+  const nowCollapsed = section.classList.toggle('history--collapsed');
+  historyExpanded = !nowCollapsed;
+  if (trigger) trigger.setAttribute('aria-expanded', String(historyExpanded));
+}
+
 function renderSavedList() {
-  const el = document.getElementById('savedList');
-  const empty = document.getElementById('savedEmpty');
-  if (!el) return;
-  const visible = allPressures.filter(p => !pendingPressureDeletes.has(p.id));
+  const section = document.getElementById('history');
+  const el = document.getElementById('historyList');
+  const scope = document.getElementById('historyScope');
+  const count = document.getElementById('historyCount');
+  if (!section || !el) return;
+  const visible = historyPressures.filter(p => !pendingPressureDeletes.has(p.id));
+
+  if (scope) scope.innerHTML = historyScopeLabel();
+  if (count) count.textContent = visible.length > 0 ? `${visible.length} saved` : '';
+
   if (visible.length === 0) {
-    el.innerHTML = '';
-    if (empty) empty.style.display = 'block';
+    section.style.display = 'none';
     return;
   }
-  if (empty) empty.style.display = 'none';
+  section.style.display = 'block';
+  applyHistoryExpanded();
+
   el.innerHTML = visible.map(p => {
-    const ctx = (p.rider_name && p.bike_name && p.setup_name)
+    // Show rider›bike›setup context unless the row matches the focused setup
+    // (the scope label already conveys that).
+    const showCtx = !(currentSetupId && p.setup_id == currentSetupId);
+    const ctx = showCtx && p.rider_name && p.bike_name && p.setup_name
       ? `<span class="saved-context">${escapeHtml(p.rider_name)} <span class="ctx-sep">›</span> ${escapeHtml(p.bike_name)} <span class="ctx-sep">›</span> ${escapeHtml(p.setup_name)}</span>`
       : '';
     const summary = pressureSummary(parsePressureInputs(p));
@@ -744,21 +773,6 @@ function renderSavedList() {
       </div>
     `;
   }).join('');
-}
-
-async function loadAllPressures() {
-  try {
-    allPressures = await api('/pressures');
-    renderSavedList();
-  } catch (err) {
-    showToast('error', 'Failed to load saved pressures: ' + err.message);
-  }
-}
-
-function refreshHistory() {
-  loadHistory(currentSetupId);
-  const sp = document.getElementById('savedPanel');
-  if (sp && sp.style.display !== 'none') loadAllPressures();
 }
 
 // Load a full rider → bike → setup context (used when recalling from the global list).
@@ -778,7 +792,7 @@ async function loadContext(riderId, bikeId, setupId) {
   saveQuickCalc();
   updateContextChip();
   updateSaveActions();
-  loadHistory(currentSetupId);
+  loadSavedPressures();
 }
 
 // Recall a saved pressure: show the saved result, restore its inputs, and (if it
@@ -955,8 +969,7 @@ async function savePressure() {
         inputs: getCalculatorInputs(),
       },
     });
-    await loadHistory(currentSetupId);
-    if (document.getElementById('savedPanel') && document.getElementById('savedPanel').style.display !== 'none') loadAllPressures();
+    await loadSavedPressures();
     showToast('success', 'Pressure saved');
   } catch (err) {
     showToast('error', 'Save error: ' + err.message);
@@ -967,7 +980,6 @@ async function savePressure() {
 
 function deletePressure(id) {
   pendingPressureDeletes.add(id);
-  renderHistoryList();
   renderSavedList();
 
   scheduleUndo(
@@ -975,7 +987,6 @@ function deletePressure(id) {
     { id },
     () => {
       pendingPressureDeletes.delete(id);
-      renderHistoryList();
       renderSavedList();
     },
     async () => {
@@ -993,16 +1004,6 @@ function toggleManage() {
   const isHidden = panel.style.display === 'none';
   panel.style.display = isHidden ? 'block' : 'none';
   if (isHidden) {
-    panel.scrollIntoView({ behavior: 'smooth', block: 'start' });
-  }
-}
-
-function toggleSavedPanel() {
-  const panel = document.getElementById('savedPanel');
-  const isHidden = panel.style.display === 'none';
-  panel.style.display = isHidden ? 'block' : 'none';
-  if (isHidden) {
-    loadAllPressures();
     panel.scrollIntoView({ behavior: 'smooth', block: 'start' });
   }
 }
@@ -1114,7 +1115,7 @@ async function deleteRider(id) {
     currentSetupId = null;
     await loadBikes(null);
     await loadSetups(null);
-    loadHistory(null);
+    loadSavedPressures();
   }
 
   scheduleUndo(
@@ -1133,7 +1134,7 @@ async function deleteRider(id) {
           if (savedSetupId) {
             currentSetupId = savedSetupId;
             document.getElementById('setupSelect').value = savedSetupId;
-            loadHistory(savedSetupId);
+            loadSavedPressures();
           }
         }
       }
@@ -1349,7 +1350,7 @@ async function deleteBike(id) {
     currentBikeId = null;
     currentSetupId = null;
     await loadSetups(null);
-    loadHistory(null);
+    loadSavedPressures();
   }
 
   scheduleUndo(
@@ -1364,7 +1365,7 @@ async function deleteBike(id) {
         if (savedSetupId) {
           currentSetupId = savedSetupId;
           document.getElementById('setupSelect').value = savedSetupId;
-          loadHistory(savedSetupId);
+          loadSavedPressures();
         }
       }
     },
@@ -1613,7 +1614,7 @@ async function deleteSetup(id) {
       if (wasCurrent) {
         currentSetupId = id;
         document.getElementById('setupSelect').value = id;
-        loadHistory(id);
+        loadSavedPressures();
         snapshotSetup();
         updateSaveActions();
       }
@@ -1661,6 +1662,7 @@ function showManage(section) {
   loadRiders().then(() => {
     updateContextChip();
     checkDirty();
+    loadSavedPressures();
     const panel = document.getElementById('managePanel');
     panel.style.display = 'block';
     panel.scrollIntoView({ behavior: 'smooth', block: 'start' });
@@ -1675,7 +1677,7 @@ function skipOnboarding() {
   document.getElementById('profileBar').style.display = 'flex';
   document.getElementById('calculator').style.display = 'block';
   onboarded = true;
-  loadRiders().then(() => checkDirty());
+  loadRiders().then(() => { checkDirty(); loadSavedPressures(); });
   loadQuickCalc();
   checkDirty();
 }
