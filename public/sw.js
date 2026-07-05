@@ -1,5 +1,14 @@
-const CACHE_NAME = 'tire-pressure-v2';
-const STATIC_ASSETS = ['/styles.css', '/script.js', '/manifest.json'];
+const CACHE_NAME = 'tire-pressure-v6';
+const STATIC_ASSETS = [
+  '/styles.css',
+  '/script.js',
+  '/manifest.json',
+  '/assets/patterns/dither.svg',
+  '/assets/patterns/lattice.svg',
+  '/assets/patterns/registration.svg',
+  '/assets/patterns/wordmark.svg',
+  '/assets/patterns/nucaloric-pressure.svg',
+];
 
 self.addEventListener('install', event => {
   event.waitUntil(caches.open(CACHE_NAME).then(cache => cache.addAll(['/', '/index.html', ...STATIC_ASSETS])));

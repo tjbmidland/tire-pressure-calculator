@@ -1,11 +1,11 @@
 {
-  "name": "Tire Pressure Calculator",
-  "short_name": "Tire Pressure",
+  "name": "Tire Pressure System",
+  "short_name": "Pressure Sys",
   "description": "Calculate optimal tire pressure based on weight and tire width",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#667eea",
-  "theme_color": "#667eea",
+  "background_color": "#000000",
+  "theme_color": "#EA027E",
   "orientation": "portrait-primary",
   "icons": [
     {
